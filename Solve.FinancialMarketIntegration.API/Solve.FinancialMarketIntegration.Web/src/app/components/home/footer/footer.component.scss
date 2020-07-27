@@ -1,0 +1,30 @@
+@media (max-width: 768px) {
+  .text-copy {
+    text-align: center;
+  }
+}
+
+@media (min-width: 768px) and (width: 768px) {
+  .text-copy {
+    text-align: initial;
+  }
+}
+
+.environment-local,
+.environment-development {
+  color: rgb(17, 0, 252);
+}
+.environment-staging {
+  color: rgb(250, 4, 4);
+}
+
+.main-footer {
+  background: #fff;
+  padding: 15px;
+  color: #444;
+  border-top: 1px solid #d2d6de;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.42857143;
+  margin-top: 10px;
+}

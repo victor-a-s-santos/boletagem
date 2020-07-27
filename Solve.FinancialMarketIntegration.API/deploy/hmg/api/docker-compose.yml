@@ -1,0 +1,11 @@
+version: '2.1'
+services:
+  api:
+    build:
+      context: .
+    ports:
+      - '5000:80'
+    volumes:
+      - ./appsettings.json:/app/appsettings.Development.json
+      - ./appsettings.json:/app/appsettings.json
+      - ./uploads:/app/uploads

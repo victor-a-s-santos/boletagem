@@ -1,0 +1,66 @@
+{
+  "Environment": "Development",
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionString": {
+    "SecurityDataContext": "server=.;database=Solve.FinancialMarketIntegration;User ID=sa;password=sa;",
+    "TicketsDataContext": "server=.;database=Solve.FinancialMarketIntegration;User ID=sa;password=sa;",
+    "WorkflowDataContext": "server=.;database=Solve.FinancialMarketIntegration;User ID=sa;password=sa;",
+    "FilesDataContext":    "server=.;database=Solve.FinancialMarketIntegration;User ID=sa;password=sa;"
+  },
+  "Security": {
+    "JWTTokenSettings": {
+      "Key": "1o2ujklaslkflksahflkjl;2je",
+      "ExpirationDays": "7"
+    },
+    "PasswordSettings": {
+      "HistoryAge": "6",
+      "ExpirationDays": "30",
+      "AttemptsLimit": "3"
+    },
+    "UserSettings": {
+      "MaximumInactiveDays": "90"
+    },
+    "EmailSettings": {
+      "PrimaryDomain": "scprelay01v.socopa.com.br",
+      "PrimaryPort": "25",
+      "FromEmail": "boletagem@socopa.com.br",
+      "FromUser": "Boletagem Socopa"
+    }
+  },
+  "ApplicationSettings": {
+    "Url": "boletagem.socopa.com.br"
+  },
+  "Serilog": {
+    "WriteTo": [{
+        "Name": "Elasticsearch",
+        "Args": {
+          "nodeUris": "http://localhost:9200",
+          "indexFormat": "logs-api-{0:yyyy-MM-dd}",
+          "batchPostingLimit": 50,
+          "period": 2000,
+          "inlineFields": true,
+          "minimumLogEventLevel": "Trace",
+          "bufferBaseFilename":  "./logs/serilog-buffer",
+          "bufferFileSizeLimitBytes": 5242880,
+          "bufferLogShippingInterval": 5000,
+          "bufferRetainedInvalidPayloadsLimitBytes": 5000,
+          "bufferFileCountLimit": 31,
+          "connectionTimeout": 5,
+          "emitEventFailure": "WriteToSelfLog",
+          "queueSizeLimit": "100000",
+          "autoRegisterTemplate": true,
+          "autoRegisterTemplateVersion": "ESv2",
+          "overwriteTemplate": false,
+          "registerTemplateFailure": "IndexAnyway",
+          "deadLetterIndexName": "deadletter-{0:yyyy.MM.dd}",
+          "numberOfShards": 20,
+          "numberOfReplicas": 10
+        }
+    }]
+  }
+}

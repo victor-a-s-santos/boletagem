@@ -1,0 +1,105 @@
+<div class="nav-side-menu">
+  <div class="logo">
+    <img src="assets/img/socopa-logo.png" />
+  </div>
+  <div class="brand container-fluid">
+    <div class="row" style="padding-top: 8px;">
+      <div class="col-md-12" style="line-height: 20px;">
+        {{ auth.name }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <i class="fa fa-key" title="Trocar Senha" (click)="changePassword()"></i>
+        <i class="fa fa-sign-out-alt fa-lg" title="Logout" (click)="signout()"></i>
+      </div>
+    </div>
+  </div>
+  <i class="fa fa-bars fa-2x toggle-btn" data-toggle="collapse" data-target="#menu-content"></i>
+  <div class="menu-list">
+    <ul id="menu-content" class="menu-content collapse out">
+      <li [routerLink]="['/']">
+        <a> <i class="fa fa-dashboard fa-lg"></i> Início </a>
+      </li>
+
+      <li data-toggle="collapse" data-target="#service" class="collapsed">
+        <a><i class="fa fa-globe fa-lg"></i> Monitor <span class="arrow"></span></a>
+      </li>
+      <ul class="sub-menu collapse" id="service">
+        <li [routerLinkActive]="['active']" [routerLink]="['/status']">
+          <a>Status</a>
+        </li>
+
+        <li [routerLinkActive]="['active']" [routerLink]="['/todos']">
+          <a>Todos</a>
+        </li>
+      </ul>
+
+      <li *ngIf="canCreateAny()" data-toggle="collapse" data-target="#products" [routerLinkActive]="['active']"
+        class="collapsed">
+        <a><i class="fa fa-gift fa-lg"></i> Boletas <span class="arrow"></span></a>
+      </li>
+      <ul class="sub-menu collapse" id="products">
+        <li *ngIf="canShow([roles.CreateTicketFundQuota])" [routerLinkActive]="['active']" [routerLink]="['/quota']">
+          <a>COTA</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketPrivateFixedIncome])" [routerLinkActive]="['active']" [routerLink]="['/cetip']">
+          <a>RF - Título Privado</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketPublicFixedIncome])" [routerLinkActive]="['active']" [routerLink]="['/selic']">
+          <a>RF - Título Público </a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketFutures])" [routerLinkActive]="['active']" [routerLink]="['/futures']">
+          <a>Futuros</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketMargin])" [routerLinkActive]="['active']" [routerLink]="['/margin']">
+          <a>Margem</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketContracted])" [routerLinkActive]="['active']" [routerLink]="['/contracted']">
+          <a>Compromissada de Compra</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketCurrencyTerm])" [routerLinkActive]="['active']" [routerLink]="['/currency-term']">
+          <a>Termo de Moeda</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketVariableIncome])" [routerLinkActive]="['active']" [routerLink]="['/rv']">
+          <a>Renda Variável</a>
+        </li>
+        <li *ngIf="canShow([roles.CreateTicketSwapCetip])" [routerLinkActive]="['active']" [routerLink]="['/swap-cetip']">
+          <a>Swap-CETIP</a>
+        </li>
+      </ul>
+
+      <li *ngIf="canUploadAny()" data-toggle="collapse" data-target="#uploads" class="collapsed">
+        <a><i class="fa fa-folder fa-lg"></i> Uploads <span class="arrow"></span></a>
+      </li>
+      <ul class="sub-menu collapse" id="uploads">
+        <li *ngIf="canShow([roles.CreateTicketVariableIncome])" [routerLinkActive]="['active']">
+          <a [routerLink]="['/uploads/pesc']">Upload PESC</a>
+        </li>
+      </ul>
+      <li
+        *ngIf="canShow([roles.CreateMasterUser, roles.CreateSubordinateUser])"
+        data-toggle="collapse"
+        data-target="#cadastro"
+        class="collapsed">
+        <a><i class="fa fa-lock fa-lg"></i> Segurança
+          <span class="arrow"></span></a>
+      </li>
+      <ul
+        class="sub-menu collapse"
+        id="cadastro"
+        *ngIf="canShow([roles.CreateMasterUser, roles.CreateSubordinateUser])">
+        <li
+          *ngIf="canShow([roles.CreateMasterUser, roles.CreateSubordinateUser])"
+          [routerLinkActive]="['active']">
+          <a [routerLink]="['/usuarios']">Usuários</a>
+        </li>
+        <li
+          *ngIf="canShow([roles.CreateMasterUser])"
+          [routerLinkActive]="['active']">
+            <a [routerLink]="['/grupos']">Grupos</a>
+          </li>
+      </ul>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,313 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <app-dados-boleta titulo="Dados da Boleta - Cota" [operationDate]="model.operationDate" [id]="model.id"
+    [statusDescription]="model.statusDescription">
+  </app-dados-boleta>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Carteira / Fundo
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-6" [class.has-error]="hasError('portfolioDocument')">
+          <label>CNPJ</label>
+          <input [(ngModel)]="model.portfolioDocument" type="text" class="form-control" name="portfolioDocument"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }" required pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}" />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Conta Corrente</label>
+          <input [(ngModel)]="model.portfolioAccount" type="text" class="form-control" name="portfolioAccount"
+            maxlength="10" required pattern="\w+-?\w*" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nome do Fundo</label>
+        <input [(ngModel)]="model.portfolioName" type="text" class="form-control" name="portfolioName" required
+          maxlength="90" pattern="[0-9a-zA-Z\u00C0-\u00D6\u00D9-\u00DC\u00E0-\u00fc\s]*" />
+      </div>
+    </div>
+  </div>
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Operação
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-3" [class.has-error]="hasError('operationTypeId')">
+          <label>Tipo Operação</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="operationTypeId" id="operationTypeId-1" [value]="1"
+                [(ngModel)]="model.operationTypeId" />
+              <label class="form-check-label" for="operationTypeId-1">
+                Compra
+              </label>
+            </div>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="operationTypeId" id="operationTypeId-2" [value]="2"
+                [(ngModel)]="model.operationTypeId" />
+              <label class="form-check-label" for="operationTypeId-2">
+                Venda
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label for="isSecondaryMarket">Adquirido em Mercado Secundário</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-control" id="isSecondaryMarket" name="isSecondaryMarket"
+                [(ngModel)]="model.isSecondaryMarket" type="checkbox" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-3">
+          <label for="isIssueUnitPrice">É PU de Emissão?</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-control" id="isIssueUnitPrice" name="isIssueUnitPrice"
+                [(ngModel)]="model.isIssueUnitPrice" type="checkbox" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-6" [class.has-error]="hasError('operationValue')" *ngIf="showOperationValue()">
+          <label>Valor da Operação</label>
+          <input type="text" class="form-control" name="operationValue" [(ngModel)]="model.operationValue"
+            [textMask]="{ mask: validator.unitPriceMask }" [attr.required]="showOperationValue()"
+            [class.ng-invalid]="hasError('operationValue')" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-3" [class.has-error]="hasError('amount')">
+          <label>Quantidade</label>
+          <input
+            type="text"
+            class="form-control"
+            name="amount"
+            [(ngModel)]="model.amount"
+            [textMask]="{ mask: validator.decimalIndexFeeMask }"
+            [attr.required]="isQuotaValueRequired()"
+            [class.ng-invalid]="hasError('amount')"
+          />
+        </div>
+
+        <div class="form-group col-md-3" [class.has-error]="hasError('quotaValue')">
+          <label>Valor da Cota</label>
+          <input type="text" class="form-control" name="quotaValue" [(ngModel)]="model.quotaValue"
+            [textMask]="{ mask: validator.unitPriceMask }" [attr.required]="isQuotaValueRequired()"
+            [class.ng-invalid]="hasError('quotaValue')" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label>Fundo Investido</label>
+          <input type="text" class="form-control" name="fundName" [(ngModel)]="model.fundName" maxlength="90" required
+            pattern="^(?!\s*$).+" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6" [class.has-error]="hasError('fundDocument')">
+          <label>CNPJ do Fundo Investido</label>
+          <input type="text" class="form-control" name="fundDocument" [(ngModel)]="model.fundDocument" [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }" required pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}" />
+        </div>
+
+        <div class="form-group col-md-6">
+          <label>Código Mnemônico / CETIP do Fundo</label>
+          <input type="text" class="form-control" name="mnemonicCode" [(ngModel)]="model.mnemonicCode" maxlength="20"
+            pattern="\w*" [required]="isCETIP()" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="FIDC">FIDC</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-control" id="FIDC" name="FIDC" [(ngModel)]="model.isFIDC" type="checkbox" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label *ngIf="model.isFIDC">Classe e Série</label>
+          <input *ngIf="model.isFIDC" type="text" class="form-control" name="fundClassSeries"
+            [(ngModel)]="model.fundClassSeries" maxlength="12" required pattern="[\w ]*" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="isNewFund">É novo fundo no mercado?</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-control" id="isNewFund" name="isNewFund" [(ngModel)]="model.isNewFund"
+                type="checkbox" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label *ngIf="model.isNewFund">Nome do Administrador do Fundo Investido</label>
+          <input *ngIf="model.isNewFund" type="text" class="form-control" name="issuerName"
+            [(ngModel)]="model.issuerName" maxlength="90" required pattern="^(?!\s*$).+" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6" [class.has-error]="hasError('fundType')">
+          <label>Tipo de Cota do Condomínio</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="fundType" [value]="'CFF'" id="fundType-3"
+                [(ngModel)]="model.fundType" />
+              <label class="form-check-label" for="fundType-3">
+                Cota Fundo Fechado (CFF)
+              </label>
+            </div>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="fundType" [value]="'CFA'" id="fundType-4"
+                [(ngModel)]="model.fundType" />
+              <label class="form-check-label" for="fundType-4">
+                Cota Fundo Aberto (CFA)
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-3" [class.has-error]="hasError('settlementTypeId')">
+          <label>Tipo Liquidação</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="settlementTypeId" [value]="1" id="settlementTypeId-1"
+                [(ngModel)]="model.settlementTypeId" />
+              <label class="form-check-label" for="settlementTypeId-1">
+                CETIP
+              </label>
+            </div>
+
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="settlementTypeId" [value]="2" id="settlementTypeId-2"
+                [(ngModel)]="model.settlementTypeId" />
+              <label class="form-check-label" for="settlementTypeId-2">
+                TED
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-3">
+          <div *ngIf="isTED()">
+            <label for="hasSameOwnership">Mesma Titularidade</label>
+            <input class="form-control" id="hasSameOwnership" name="hasSameOwnership"
+              [(ngModel)]="model.hasSameOwnership" type="checkbox" />
+          </div>
+          <div *ngIf="isCETIPVoiceFixed()">
+            <label for="isCetipVoice">CETIP Voice</label>
+            <input class="form-control" id="isCetipVoice" name="isCetipVoice" [disabled]="true" [checked]="true"
+              type="checkbox" />
+          </div>
+        </div>
+
+        <div class="form-group col-md-6" *ngIf="isCETIP()">
+          <label>Conta CETIP do investidor</label>
+          <input [(ngModel)]="model.portfolioCetipAccount" type="text" class="form-control" name="portfolioCetipAccount"
+            maxlength="10" pattern="\d+-?\d*" [required]="isCETIP()" />
+        </div>
+      </div>
+
+      <div *ngIf="hasCounterpart()" class="form-row">
+        <div class="form-group col-md-6">
+          <label>Nome Contraparte</label>
+          <input type="text" class="form-control" name="counterpartName" [(ngModel)]="model.counterpartName"
+            maxlength="90" required pattern="^(?!\s*$).+" />
+        </div>
+
+        <div class="form-group col-md-6" [class.has-error]="hasError('counterpartDocument')">
+          <label>CNPJ Contraparte</label>
+          <input type="text" class="form-control" name="counterpartDocument" [(ngModel)]="model.counterpartDocument"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }" required pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}" />
+        </div>
+      </div>
+
+      <div *ngIf="isCETIP()" class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta CETIP Contraparte</label>
+          <input type="text" class="form-control" name="counterpartCetipAccount"
+            [(ngModel)]="model.counterpartCetipAccount" maxlength="10" required pattern="\d+-?\d*" />
+        </div>
+
+        <div class="form-group col-md-6">
+          <label>Comando</label>
+          <input type="text" class="form-control" name="command" [(ngModel)]="model.command" maxlength="10" />
+        </div>
+      </div>
+
+      <div *ngIf="isTED()" class="form-row">
+        <div class="form-group col-md-3">
+          <label>Banco</label>
+          <input type="text" class="form-control" name="fundBank" [(ngModel)]="model.fundBank" maxlength="20"
+            required />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Agência</label>
+          <input type="text" class="form-control" name="fundBranch" [(ngModel)]="model.fundBranch" pattern="\w+-?\w*"
+            maxlength="10" required />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Conta</label>
+          <input type="text" class="form-control" name="fundAccount" [(ngModel)]="model.fundAccount" pattern="\w+-?\w*"
+            maxlength="15" required />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br />
+  <div class="form-group">
+    <label>Observações</label>
+    <textarea class="form-control" rows="5" name="annotations" [(ngModel)]="model.annotations" maxlength="200">
+    </textarea>
+  </div>
+
+  <div class="form-group actions" *ngIf="canEdit()">
+    <input type="button" value="Salvar" class="btn btn-primary" [disabled]="!canEdit()" appDebounceClick
+      (debounceClick)="submit()" [debounceTime]="200" />
+    <input type="button" value="Encaminhar" class="btn btn-primary" [disabled]="!canEdit()" appDebounceClick
+      (debounceClick)="forward()" [debounceTime]="200" />
+  </div>
+
+  <div class="form-group actions" *ngIf="canChangeStatus()">
+    <input type="button" value="Aprovar" class="btn btn-success" appDebounceClick (debounceClick)="approve()"
+      [debounceTime]="200" />
+    <input type="button" value="Reprovar" class="btn btn-danger" appDebounceClick (debounceClick)="reject()"
+      [debounceTime]="200" />
+  </div>
+
+  <div class="form-group actions" *ngIf="canDuplicate()">
+    <input type="button" value="Duplicar" class="btn btn-primary" [disabled]="!model.id" appDebounceClick
+      (debounceClick)="duplicate()" [debounceTime]="200" />
+  </div>
+</form>
+<app-workflow-history [ticketId]="model.id"></app-workflow-history>

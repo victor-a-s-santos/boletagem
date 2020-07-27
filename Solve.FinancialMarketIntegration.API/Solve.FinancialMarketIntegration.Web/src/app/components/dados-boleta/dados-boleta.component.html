@@ -1,0 +1,30 @@
+<div class="card border-0 header">
+  <h3>{{ titulo }}</h3>
+  <div class="card-body">
+    <!-- https://getbootstrap.com/docs/4.0/utilities/display/ -->
+    <div class="form-row">
+      <div class="form-group col-md-2">
+        <label>Data Operação</label>
+        <span
+          *ngIf="operationDate != null"
+          class="d-block p-2 bg-dark text-white text-center"
+        >
+          {{ operationDate | date: 'dd/MM/yyyy' }}
+        </span>
+      </div>
+      <div class="form-group col-md-2">
+        <label *ngIf="id">Código</label>
+        <span *ngIf="id" class="d-block p-2 bg-dark text-white text-center">
+          {{ id }}
+        </span>
+      </div>
+      <div class="form-group offset-5"></div>
+      <div class="form-group col-md-3">
+        <label>&nbsp;</label>
+        <span class="d-block p-2 bg-dark text-white text-center">
+          {{ statusDescription || 'Em Elaboração' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

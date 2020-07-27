@@ -1,0 +1,381 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <app-dados-boleta
+    titulo="Dados da Boleta - Renda Fixa - Título Público"
+    [operationDate]="model.operationDate"
+    [id]="model.id"
+    [statusDescription]="model.statusDescription"
+  >
+  </app-dados-boleta>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Carteira
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-6"
+          [class.has-error]="hasError('portfolioDocument')"
+        >
+          <label>CNPJ</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioDocument"
+            [(ngModel)]="model.portfolioDocument"
+            #carteira_cnpj
+            pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Conta Corrente</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioAccount"
+            [(ngModel)]="model.portfolioAccount"
+            #carteira_cc
+            required
+            maxlength="10"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nome</label>
+        <input
+          type="text"
+          class="form-control"
+          name="portfolioName"
+          [(ngModel)]="model.portfolioName"
+          #carteira_nome
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta SELIC</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioSelicAccount"
+            required
+            [(ngModel)]="model.portfolioSelicAccount"
+            pattern="\d+-?\d*"
+            maxlength="15"
+            #carteira_conta
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header">
+      Dados da Operação
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-2"
+          [class.has-error]="hasError('operationTypeId')"
+        >
+          <label>Tipo Operação</label>
+          <div>
+            <div
+              class="form-check form-check-inline"
+              *ngFor="let item of TiposCompra; index as i"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                id="TipoOperacao-{{ i }}-id"
+                name="operationTypeId"
+                [(ngModel)]="model.operationTypeId"
+                [value]="item.id"
+                required
+              />
+
+              <label class="form-check-label" for="TipoOperacao-{{ i }}-id">
+                {{ item.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group col-md-2" [class.has-error]="hasError('acquisitionDate')">
+          <label *ngIf="isVenda()">Data Aquisição</label>
+          <input
+            *ngIf="isVenda()"
+            type="text"
+            class="form-control"
+            name="acquisitionDate"
+            [(ngModel)]="model.acquisitionDate"
+            [textMask]="{ mask: validator.dateMask, guide: false }"
+            required
+          />
+        </div>
+        <div class="offset-2"></div>
+        <div class="form-group col-md-2" [class.has-error]="hasError('amount')">
+          <label>Quantidade</label>
+          <input
+            type="text"
+            class="form-control"
+            name="amount"
+            [(ngModel)]="model.amount"
+            required
+            [textMask]="{ mask: validator.decimalMask }"
+            required
+            (ngModelChange)="calculateOperationValue()"
+          />
+        </div>
+
+        <div
+          class="form-group col-md-2"
+          [class.has-error]="hasError('unitPrice')"
+        >
+          <label>PU (Preço Unitário)</label>
+          <input
+            type="text"
+            class="form-control"
+            name="unitPrice"
+            [(ngModel)]="model.unitPrice"
+            [textMask]="{ mask: validator.unitPriceMask }"
+            maxlength="25"
+            required
+            (ngModelChange)="calculateOperationValue()"
+          />
+        </div>
+
+        <div
+          class="form-group col-md-2"
+          [class.has-error]="hasError('operationValue')"
+        >
+          <label>Valor da Operação</label>
+          <i
+            class="fas fa-info-circle"
+            title="Valor Alterado"
+            *ngIf="isOperationValueModified()"
+          ></i>
+          <input
+            type="text"
+            class="form-control"
+            name="operationValue"
+            [(ngModel)]="model.operationValue"
+            [textMask]="{ mask: validator.currencyMask }"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-2">
+          <label for="termo">Tipo de Liquidação</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                id="termo-1"
+                name="term"
+                type="radio"
+                [value]="3"
+                [(ngModel)]="model.settlementTypeId"
+                required
+              />
+              <label class="form-check-label" for="termo-1">Termo</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                id="termo-0"
+                name="term"
+                type="radio"
+                [value]="4"
+                [(ngModel)]="model.settlementTypeId"
+                required
+              />
+              <label class="form-check-label" for="termo-0">À vista</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-2" [class.has-error]="hasError('settlementDate')">
+          <label *ngIf="isTermo()">Data Liquidação</label>
+          <input
+            *ngIf="isTermo()"
+            type="text"
+            class="form-control"
+            name="settlementDate"
+            [(ngModel)]="model.settlementDate"
+            [textMask]="{ mask: validator.dateMask, guide: false }"
+            required
+          />
+        </div>
+        <div class="offset-2"></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Nome do Título</label>
+          <input
+            type="text"
+            class="form-control"
+            name="security"
+            [(ngModel)]="model.security"
+            required
+          />
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Código Título</label>
+          <input
+            type="text"
+            class="form-control"
+            name="securityId"
+            [(ngModel)]="model.securityId"
+            required
+          />
+        </div>
+
+        <div class="form-group col-md-4" [class.has-error]="hasError('expirationDate')">
+          <label>Data Vencimento</label>
+          <input
+            type="text"
+            class="form-control"
+            name="expirationDate"
+            [(ngModel)]="model.expirationDate"
+            [textMask]="{ mask: validator.dateMask, guide: false }"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Nome da Contraparte</label>
+          <input
+            type="text"
+            class="form-control"
+            name="counterpartName"
+            [(ngModel)]="model.counterpartName"
+            required
+          />
+        </div>
+        <div
+          class="form-group col-md-6"
+          [class.has-error]="hasError('counterpartDocument')"
+        >
+          <label>CNPJ da Contraparte</label>
+          <input
+            type="text"
+            class="form-control"
+            name="counterpartDocument"
+            [(ngModel)]="model.counterpartDocument"
+            pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta SELIC Contraparte</label>
+          <input
+            class="form-control text-box single-line"
+            type="text"
+            name="counterpartSelicAccount"
+            [(ngModel)]="model.counterpartSelicAccount"
+            required
+            pattern="\d+-?\d*"
+            maxlength="15"
+            value=""
+          />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Comando</label>
+          <input
+            class="form-control text-box single-line"
+            type="text"
+            name="command"
+            [(ngModel)]="model.command"
+            maxlength="8"
+            value=""
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <br />
+  <div class="form-group">
+    <label>Observações</label>
+    <textarea
+      class="form-control"
+      name="annotations"
+      [(ngModel)]="model.annotations"
+      rows="5"
+    ></textarea>
+  </div>
+
+  <div class="form-group actions" *ngIf="canEdit()">
+    <input
+      type="button"
+      value="Salvar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="submit()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Encaminhar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="forward()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canChangeStatus()">
+    <input
+      type="button"
+      value="Aprovar"
+      class="btn btn-success"
+      appDebounceClick
+      (debounceClick)="approve()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Reprovar"
+      class="btn btn-danger"
+      appDebounceClick
+      (debounceClick)="reject()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canDuplicate()">
+    <input
+      type="button"
+      value="Duplicar"
+      class="btn btn-primary"
+      [disabled]="!model.id"
+      appDebounceClick
+      (debounceClick)="duplicate()"
+      [debounceTime]="200"
+    />
+  </div>
+</form>
+
+<app-workflow-history [ticketId]="model.id"></app-workflow-history>

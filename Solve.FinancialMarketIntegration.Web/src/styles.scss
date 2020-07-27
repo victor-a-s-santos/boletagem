@@ -1,0 +1,142 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "scss/fontawesome.scss";
+@import "scss/solid.scss";
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+@import "~bootstrap/scss/bootstrap";
+
+$bg-focus: #58c8cc;
+$bg-primary: #17212f;
+$bg-secondary: #b4b4b4;
+
+$socopa-verde-claro: #4dc6bd;
+$socopa-verde-escuro: #36aaa1;
+$socopa-preto-escuro: #53585f;
+
+$primary: #17212f;
+$secondary: #ffffff;
+
+body {
+  background-color: #f7f7f7 !important;
+  font-family: Roboto, Arial, sans-serif !important;
+}
+
+#main {
+  border-top: 2px solid #23282e;
+  padding-top: 15px;
+}
+
+// Inicio - customização dos componentes do Angular-Material
+mat-accordion {
+  mat-expansion-panel .mat-expanded {
+    font-weight: 1.2;
+  }
+}
+
+form {
+  input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.form-group {
+  &.has-error {
+    .form-control,
+    .input-group-addon {
+      border-color: #c23d21;
+      box-shadow: none;
+    }
+
+    .help-block {
+      color: #c23d21;
+    }
+
+    .select2-selection {
+      border: 1px solid #c23d21;
+    }
+
+    label {
+      color: #c23d21;
+    }
+  }
+}
+
+.panel-default > .panel-heading {
+  background-color: $bg-secondary !important;
+}
+
+.mat-expansion-panel-content .mat-expansion-panel-body {
+  padding: 0px;
+}
+
+.mat-toolbar,
+.mat-card-header {
+  background: #53585f;
+  color: #ffffff;
+}
+
+// Grid
+.mat-header-cell {
+  background-color: $socopa-verde-escuro !important;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+button.mat-primary {
+  background-color: #4dc6bd !important;
+  color: #ffffff;
+}
+
+th.mat-header-cell {
+  border: 1px solid #ffffff !important;
+  text-align: center !important;
+}
+
+table tbody tr td {
+  border: 1px solid #dbdbdb;
+  text-align: center !important;
+}
+
+input.ng-touched.ng-invalid,
+.required-active {
+  background-color: #f9f2f4 !important;
+  border: 1px solid #c7254e !important;
+}
+
+.btn-primary {
+  background-color: $socopa-verde-claro !important;
+  border-color: $socopa-verde-claro !important;
+  box-shadow: none !important;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.form-group .btn {
+  margin-right: 5px;
+}
+
+.snackbar-theme {
+  button {
+    color: #17a2b8;
+  }
+}
+
+// Angular Theme Overrides
+.mat-checkbox:not(.mat-checkbox-disabled).mat-accent
+  .mat-checkbox-ripple
+  .mat-ripple-element {
+  background-color: $socopa-verde-claro;
+}
+
+.mat-checkbox-checked.mat-accent .mat-checkbox-background {
+  background-color: $socopa-verde-escuro;
+}
+
+.mat-checkbox-checked.mat-accent .mat-checkbox-background,
+.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
+  background-color: $socopa-verde-escuro;
+}

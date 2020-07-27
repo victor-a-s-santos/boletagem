@@ -1,0 +1,13 @@
+version: '2.1'
+services:
+  db:
+    build:
+      context: .
+    volumes:
+      - ./appsettings.json:/app/appsettings.Development.json
+      - ./appsettings.json:/app/appsettings.json
+      - ./entrypoint.sh:/app/entrypoint.sh
+    working_dir: /app
+    entrypoint:
+      - sh
+      - entrypoint.sh

@@ -1,0 +1,432 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <app-dados-boleta
+    titulo="Dados da Boleta Swap CETIP"
+    [operationDate]="model.operationDate"
+    [id]="model.id"
+    [statusDescription]="model.statusDescription"
+  >
+  </app-dados-boleta>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Carteira
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-6"
+          [class.has-error]="hasError('portfolioDocument')"
+        >
+          <label>CNPJ</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioDocument"
+            [(ngModel)]="model.portfolioDocument"
+            #carteira_cnpj
+            pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Conta Corrente</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioAccount"
+            [(ngModel)]="model.portfolioAccount"
+            maxlength="10"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nome</label>
+        <input
+          type="text"
+          class="form-control"
+          name="portfolioName"
+          [(ngModel)]="model.portfolioName"
+          #carteira_nome
+          maxlength="90"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta CETIP</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioCetipAccount"
+            required
+            [(ngModel)]="model.portfolioCetipAccount"
+            pattern="\d+-?\d*"
+            maxlength="15"
+            #carteira_conta
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Operação
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('operationValue')"
+        >
+          <label>Valor da Operação</label>
+          <input
+            type="text"
+            class="form-control"
+            name="operationValue"
+            [(ngModel)]="model.operationValue"
+            [textMask]="{ mask: validator.currencyMask }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-4" [class.has-error]="hasError('expirationDate')">
+          <label>Data de Vencimento</label>
+          <input
+            type="text"
+            class="form-control"
+            name="expirationDate"
+            [(ngModel)]="model.expirationDate"
+            [textMask]="{ mask: validator.dateMask, guide: false }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Comando</label>
+          <input
+            class="form-control"
+            type="text"
+            name="command"
+            [(ngModel)]="model.command"
+            maxlength="10"
+            value=""
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Indexador Ativo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="activeIndex"
+            [(ngModel)]="model.activeIndex"
+            required
+          />
+        </div>
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('activeIndexPercent')"
+        >
+          <label>Percentual do Indexador Ativo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="activeIndexPercent"
+            [(ngModel)]="model.activeIndexPercent"
+            [textMask]="{ mask: validator.decimalMask }"
+            required
+          />
+        </div>
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('activeIndexTax')"
+        >
+          <label>Taxa do Indexador Ativo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="activeIndexTax"
+            [(ngModel)]="model.activeIndexTax"
+            [textMask]="{ mask: validator.decimalIndexFeeMask }"
+            required
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div
+          class="form-group col-md-2"
+          [class.has-error]="hasError('activeIndexBase')"
+        >
+          <label>Base Indexador Ativo</label>
+          <div>
+            <div
+              class="form-check form-check-inline"
+              *ngFor="let item of ListaBaseIndexador; index as i"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                id="ActiveIndexBase-{{ i }}-id"
+                name="activeIndexBase"
+                [(ngModel)]="model.activeIndexBase"
+                [value]="item.id"
+                required
+              />
+
+              <label class="form-check-label" for="ActiveIndexBase-{{ i }}-id">
+                {{ item.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div
+          class="form-group col-md-3"
+          [class.has-error]="hasError('activeInterestType')"
+        >
+          <label for="termo">Tipo de Juros do Indexador Ativo</label>
+          <div>
+            <div
+              class="form-check form-check-inline"
+              *ngFor="let item of ListaTipoJuros; index as i"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                id="ActiveInterestType-{{ i }}-id"
+                name="activeInterestType"
+                [(ngModel)]="model.activeInterestType"
+                [value]="item.id"
+                required
+              />
+
+              <label
+                class="form-check-label"
+                for="ActiveInterestType-{{ i }}-id"
+              >
+                {{ item.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Nome da Contraparte</label>
+          <input
+            type="text"
+            class="form-control"
+            name="counterpartName"
+            [(ngModel)]="model.counterpartName"
+            maxlength="80"
+            required
+          />
+        </div>
+        <div
+          class="form-group col-md-6"
+          [class.has-error]="hasError('counterpartDocument')"
+        >
+          <label>CNPJ da Contraparte</label>
+          <input
+            type="text"
+            class="form-control"
+            name="counterpartDocument"
+            [(ngModel)]="model.counterpartDocument"
+            pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta CETIP Contraparte</label>
+          <input
+            class="form-control"
+            type="text"
+            name="counterpartCetipAccount"
+            [(ngModel)]="model.counterpartCetipAccount"
+            required
+            pattern="\d+-?\d*"
+            maxlength="15"
+            value=""
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Indexador Passivo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="passiveIndex"
+            required
+            [(ngModel)]="model.passiveIndex"
+          />
+        </div>
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('passiveIndexPercent')"
+        >
+          <label>Percentual Indexador do Passivo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="passiveIndexPercent"
+            required
+            [(ngModel)]="model.passiveIndexPercent"
+            [textMask]="{ mask: validator.decimalMask }"
+          />
+        </div>
+
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('passiveIndexTax')"
+        >
+          <label>Taxa do Indexador Passivo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="passiveIndexTax"
+            required
+            [(ngModel)]="model.passiveIndexTax"
+            [textMask]="{ mask: validator.decimalIndexFeeMask }"
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('passiveIndexBase')"
+        >
+          <label>Base Indexador do Passivo</label>
+          <div>
+            <div
+              class="form-check form-check-inline"
+              *ngFor="let item of ListaBaseIndexador; index as i"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                id="PassiveIndexBase-{{ i }}-id"
+                name="passiveIndexBase"
+                [(ngModel)]="model.passiveIndexBase"
+                [value]="item.id"
+                required
+              />
+
+              <label class="form-check-label" for="PassiveIndexBase-{{ i }}-id">
+                {{ item.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('passiveInterestType')"
+        >
+          <label for="termo">Tipo de Juros do Indexador Passivo</label>
+          <div>
+            <div
+              class="form-check form-check-inline"
+              *ngFor="let item of ListaTipoJuros; index as i"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                id="PassiveInterestType-{{ i }}-id"
+                name="passiveInterestType"
+                [(ngModel)]="model.passiveInterestType"
+                [value]="item.id"
+                required
+              />
+
+              <label
+                class="form-check-label"
+                for="PassiveInterestType-{{ i }}-id"
+              >
+                {{ item.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br />
+  <div class="form-group">
+    <label class="control-label">Observações</label>
+    <textarea
+      class="form-control"
+      rows="5"
+      name="annotations"
+      [(ngModel)]="model.annotations"
+    >
+    </textarea>
+  </div>
+
+  <div class="form-group actions" *ngIf="canEdit()">
+    <input
+      type="button"
+      value="Salvar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="submit()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Encaminhar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="forward()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canChangeStatus()">
+    <input
+      type="button"
+      value="Aprovar"
+      class="btn btn-success"
+      appDebounceClick
+      (debounceClick)="approve()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Reprovar"
+      class="btn btn-danger"
+      appDebounceClick
+      (debounceClick)="reject()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canDuplicate()">
+    <input
+      type="button"
+      value="Duplicar"
+      class="btn btn-primary"
+      [disabled]="!model.id"
+      appDebounceClick
+      (debounceClick)="duplicate()"
+      [debounceTime]="200"
+    />
+  </div>
+</form>
+
+<app-workflow-history [ticketId]="model.id"></app-workflow-history>

@@ -1,0 +1,371 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+    <app-dados-boleta
+      titulo="Dados da Boleta Futuros"
+      [operationDate]="model.operationDate"
+      [id]="model.id"
+      [statusDescription]="model.statusDescription"
+    >
+    </app-dados-boleta>
+
+    <div class="card mt-3">
+      <div class="card-header text-uppercase">
+        Dados da Carteira
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div
+            class="form-group col-md-6"
+            [class.has-error]="hasError('portfolioDocument')"
+          >
+            <label>CNPJ</label>
+            <input
+              type="text"
+              class="form-control"
+              name="portfolioDocument"
+              [(ngModel)]="model.portfolioDocument"
+              #portfolioDocument
+              pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+              [textMask]="{
+                mask: validator.documentLegalPersonMask,
+                guide: false
+              }"
+              required
+            />
+          </div>
+          <div
+            class="form-group col-md-6"
+            [class.has-error]="
+              portfolioAccount.invalid &&
+              (portfolioAccount.dirty || portfolioAccount.touched)
+            "
+          >
+            <label>Conta Corrente</label>
+            <input
+              type="text"
+              class="form-control"
+              name="portfolioAccount"
+              [(ngModel)]="model.portfolioAccount"
+              #portfolioAccount
+              required
+              maxlength="10"
+            />
+          </div>
+        </div>
+
+        <div
+          class="form-group"
+          [class.has-error]="
+            portfolioName.invalid &&
+            (portfolioName.dirty || portfolioName.touched)
+          "
+        >
+          <label>Nome</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioName"
+            [(ngModel)]="model.portfolioName"
+            #portfolioName
+            maxlength="90"
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <div
+            class="form-group col-md-6"
+            [class.has-error]="
+              portfolioB3Account.invalid &&
+              (portfolioB3Account.dirty || portfolioB3Account.touched)
+            "
+          >
+            <label>Conta B3</label>
+            <input
+              type="text"
+              class="form-control"
+              name="portfolioB3Account"
+              required
+              [(ngModel)]="model.portfolioB3Account"
+              pattern="\d+-?\d*"
+              maxlength="15"
+              #portfolioB3Account
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header text-uppercase">
+        Dados da Operação
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div
+            class="form-group col-md-2"
+            [class.has-error]="hasError('operationTypeId')"
+          >
+            <label>Tipo Operação</label>
+            <div>
+              <div
+                class="form-check form-check-inline"
+                *ngFor="let item of TiposCompra; index as i"
+              >
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  id="TipoOperacao-{{ i }}-id"
+                  name="operationTypeId"
+                  [(ngModel)]="model.operationTypeId"
+                  [value]="item.id"
+                  required
+                />
+
+                <label class="form-check-label" for="TipoOperacao-{{ i }}-id">
+                  {{ item.name }}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="offset-6"></div>
+          <div
+            class="form-group col-md-4"
+            [class.has-error]="
+              (tradingDate.invalid && (tradingDate.dirty || tradingDate.touched)) || hasError('tradingDate')
+            "
+          >
+            <label>Data do Pregão</label>
+            <input
+              type="text"
+              class="form-control"
+              name="tradingDate"
+              #tradingDate
+              [(ngModel)]="model.tradingDate"
+              [textMask]="{ mask: validator.dateMask, guide: false }"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4"
+            [class.has-error]="amount.invalid && (amount.dirty || amount.touched)">
+            <label>Quantidade</label>
+            <input
+              type="text"
+              class="form-control"
+              name="amount"
+              [(ngModel)]="model.amount"
+              [textMask]="{ mask: validator.amountMask }"
+              required
+              #amount
+            />
+          </div>
+          <div
+            class="form-group col-md-4"
+            [class.has-error]="hasError('unitPrice')"
+          >
+            <label>PU (Preço Unitário)</label>
+            <input
+              type="text"
+              class="form-control"
+              required
+              [(ngModel)]="model.unitPrice"
+              [textMask]="{ mask: validator.unitPriceMask }"
+              name="unitPrice"
+            />
+          </div>
+          <div
+            class="form-group col-md-4"
+            [class.has-error]="hasError('percentageDiscount')"
+          >
+            <label>Percentual de Desconto</label>
+            <input
+              type="text"
+              class="form-control"
+              name="percentageDiscount"
+              [(ngModel)]="model.percentageDiscount"
+              [textMask]="{ mask: validator.decimalSixteenMask }"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div
+            class="form-group col-md-6"
+            [class.has-error]="
+              paperCode.invalid && (paperCode.dirty || paperCode.touched)
+            "
+          >
+            <label>Código do Papel</label>
+            <input
+              type="text"
+              class="form-control"
+              name="paperCode"
+              #paperCode
+              [(ngModel)]="model.paperCode"
+              required
+            />
+          </div>
+          <div
+            class="form-group col-md-6"
+            [class.has-error]="
+              paperSerie.invalid && (paperSerie.dirty || paperSerie.touched)
+            "
+          >
+            <label>Série do Papel</label>
+            <input
+              type="text"
+              class="form-control"
+              name="paperSerie"
+              #paperSerie
+              [(ngModel)]="model.paperSerie"
+              maxlength="10"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div
+            class="form-group col-md-4"
+            [class.has-error]="broker.invalid && (broker.dirty || broker.touched)"
+          >
+            <label>Nome Corretora Contraparte</label>
+            <input
+              type="text"
+              class="form-control"
+              name="broker"
+              #broker
+              [(ngModel)]="model.broker"
+              required
+            />
+          </div>
+          <div
+            class="form-group col-md-4"
+            [class.has-error]="hasError('brokerDocument')"
+          >
+            <label>CNPJ Corretora Contraparte</label>
+            <input
+              type="text"
+              class="form-control"
+              name="brokerDocument"
+              [(ngModel)]="model.brokerDocument"
+              #brokerDocument
+              pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+              [textMask]="{
+                mask: validator.documentLegalPersonMask,
+                guide: false
+              }"
+              required
+            />
+          </div>
+          <div
+            class="form-group col-md-4"
+            [class.has-error]="
+              brokerCode.invalid && (brokerCode.dirty || brokerCode.touched)
+            "
+          >
+            <label>Código da Corretora na B3</label>
+            <input
+              type="text"
+              class="form-control"
+              name="brokerCode"
+              #brokerCode
+              [(ngModel)]="model.brokerCode"
+              maxlength="15"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div
+            class="form-group col-md-6"
+            [class.has-error]="
+              brokerAccount.invalid &&
+              (brokerAccount.dirty || brokerAccount.touched)
+            "
+          >
+            <label>Conta Broker</label>
+            <input
+              class="form-control text-box single-line"
+              name="brokerAccount"
+              #brokerAccount
+              [(ngModel)]="model.brokerAccount"
+              type="text"
+              required
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br />
+    <div class="form-group">
+      <label>Observações</label>
+      <textarea
+        class="form-control"
+        rows="5"
+        name="annotations"
+        [(ngModel)]="model.annotations"
+        maxlength="200"
+      >
+      </textarea>
+    </div>
+
+    <br />
+    <div class="form-group actions" *ngIf="canEdit()">
+      <input
+        type="button"
+        value="Salvar"
+        class="btn btn-primary"
+        [disabled]="!canEdit()"
+        appDebounceClick
+        (debounceClick)="submit()"
+        [debounceTime]="200"
+      />
+      <input
+        type="button"
+        value="Encaminhar"
+        class="btn btn-primary"
+        [disabled]="!canEdit()"
+        appDebounceClick
+        (debounceClick)="forward()"
+        [debounceTime]="200"
+      />
+    </div>
+
+    <div class="form-group actions" *ngIf="canChangeStatus()">
+      <input
+        type="button"
+        value="Aprovar"
+        class="btn btn-success"
+        appDebounceClick
+        (debounceClick)="approve()"
+        [debounceTime]="200"
+      />
+      <input
+        type="button"
+        value="Reprovar"
+        class="btn btn-danger"
+        appDebounceClick
+        (debounceClick)="reject()"
+        [debounceTime]="200"
+      />
+    </div>
+
+    <div class="form-group actions" *ngIf="canDuplicate()">
+      <input
+        type="button"
+        value="Duplicar"
+        class="btn btn-primary"
+        [disabled]="!model.id"
+        appDebounceClick
+        (debounceClick)="duplicate()"
+        [debounceTime]="200"
+      />
+    </div>
+  </form>
+
+  <app-workflow-history [ticketId]="model.id"></app-workflow-history>

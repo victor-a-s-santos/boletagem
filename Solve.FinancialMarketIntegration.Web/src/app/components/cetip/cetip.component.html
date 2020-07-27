@@ -1,0 +1,404 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <app-dados-boleta
+    titulo="Dados da Boleta - Renda Fixa - Título Privado"
+    [operationDate]="this.model.operationDate"
+    [id]="this.model.id"
+    [statusDescription]="model.statusDescription"
+  >
+  </app-dados-boleta>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Carteira
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-6"
+          [class.has-error]="hasError('portfolioDocument')"
+        >
+          <label>CNPJ</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioDocument"
+            [(ngModel)]="model.portfolioDocument"
+            #carteira_cnpj
+            pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+            [textMask]="{
+              mask: validator.documentLegalPersonMask,
+              guide: false
+            }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Conta Corrente</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioAccount"
+            [(ngModel)]="model.portfolioAccount"
+            #carteira_cc
+            required
+            maxlength="10"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nome</label>
+        <input
+          type="text"
+          class="form-control"
+          name="portfolioName"
+          [(ngModel)]="model.portfolioName"
+          #carteira_nome
+          required
+          maxlength="90"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta Cetip</label>
+          <input
+            type="text"
+            class="form-control"
+            name="portfolioCetipAccount"
+            required
+            [(ngModel)]="model.portfolioCetipAccount"
+            pattern="\d+-?\d*"
+            maxlength="15"
+            #carteira_conta
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Operação
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-2"
+          [class.has-error]="hasError('operationTypeId')"
+        >
+          <label>Tipo Operação</label>
+          <div>
+            <div
+              class="form-check form-check-inline"
+              *ngFor="let item of TiposCompra; index as i"
+            >
+              <input
+                class="form-check-input"
+                type="radio"
+                id="TipoOperacao-{{ i }}-id"
+                name="operationTypeId"
+                [(ngModel)]="model.operationTypeId"
+                [value]="item.id"
+                required
+              />
+
+              <label class="form-check-label" for="TipoOperacao-{{ i }}-id">
+                {{ item.name }}
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group col-md-2">
+          <label *ngIf="isVenda()">Data Aquisição</label>
+          <div class="form-inline">
+            <input
+              *ngIf="isVenda()"
+              type="text"
+              class="form-control"
+              name="acquisitionDate"
+              maxlength="10"
+              [(ngModel)]="model.acquisitionDate"
+              [textMask]="{ mask: validator.dateMask, guide: false }"
+              required
+            />
+          </div>
+        </div>
+        <div class="offset-2"></div>
+        <div class="form-group col-md-2" [class.has-error]="hasError('amount')">
+          <label>Quantidade</label>
+          <input
+            type="text"
+            class="form-control"
+            name="amount"
+            [(ngModel)]="model.amount"
+            required
+            maxlength="17"
+            [textMask]="{ mask: validator.decimalMask }"
+            (ngModelChange)="calculateOperationValue()"
+          />
+        </div>
+
+        <div
+          class="form-group col-md-2"
+          [class.has-error]="hasError('unitPrice')"
+        >
+          <label>PU (Preço Unitário)</label>
+          <input
+            type="text"
+            class="form-control"
+            name="unitPrice"
+            [(ngModel)]="model.unitPrice"
+            required
+            maxlength="35"
+            [textMask]="{ mask: validator.currencyMask }"
+            (ngModelChange)="calculateOperationValue()"
+          />
+        </div>
+
+        <div class="form-group col-md-2" [class.has-error]="hasError('operationValue')">
+          <label [ngClass]="{ 'valorAlterado': isOperationValueModified() }">Valor da Operação</label>
+          <i class="fas fa-info-circle" title="Valor Alterado" *ngIf="isOperationValueModified()"></i>
+          <input type="text" class="form-control" name="operationValue" [(ngModel)]="model.operationValue"
+            [textMask]="{ mask: validator.currencyMaskDoubleDecimal }" required maxlength="30" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('isSecondaryMarket')"
+        >
+          <label for="termo">Adquirido em Mercado Secundário</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                id="termo-1"
+                name="termo"
+                type="radio"
+                [value]="true"
+                [(ngModel)]="this.model.isSecondaryMarket"
+                required
+              />
+              <label class="form-check-label" for="termo-1">Sim</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                id="termo-0"
+                name="termo"
+                type="radio"
+                [value]="false"
+                [(ngModel)]="this.model.isSecondaryMarket"
+                required
+              />
+              <label class="form-check-label" for="termo-0">Não</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Tipo de Ativo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="assetType"
+            maxlength="20"
+            [(ngModel)]="model.assetType"
+            required
+          />
+        </div>
+
+        <div *ngIf="!isEscritoTermo()" class="form-group col-md-8">
+          <label>Código do Ativo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="assetCode"
+            maxlength="15"
+            [(ngModel)]="model.assetCode"
+            required
+          />
+        </div>
+
+        <div *ngIf="isEscritoTermo()" class="form-group col-md-8">
+          <label>Ação Objeto</label>
+          <input
+            type="text"
+            class="form-control"
+            name="objectAction"
+            maxlength="50"
+            [(ngModel)]="model.objectAction"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div
+          class="form-group col-md-4"
+          [class.has-error]="hasError('expirationDate')"
+        >
+          <label>Data Vencimento</label>
+          <input
+            type="text"
+            class="form-control"
+            name="expirationDate"
+            maxlength="10"
+            [(ngModel)]="model.expirationDate"
+            [textMask]="{ mask: validator.dateMask, guide: false }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label>Taxa Emissão</label>
+          <input
+            type="text"
+            class="form-control"
+            name="issueFee"
+            [(ngModel)]="model.issueFee"
+            maxlength="21"
+            [textMask]="{ mask: validator.decimalFeeMask }"
+            required
+          />
+        </div>
+        <div class="form-group col-md-4" [class.has-error]="hasError('issueDate')">
+          <label>Data Emissão</label>
+          <input
+            type="text"
+            class="form-control"
+            name="issueDate"
+            maxlength="10"
+            [(ngModel)]="model.issueDate"
+            [textMask]="{ mask: validator.dateMask, guide: false }"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Nome da Contraparte</label>
+          <input
+            type="text"
+            class="form-control"
+            maxlength="21"
+            name="ContraParte"
+            [(ngModel)]="model.counterpartName"
+            required
+          />
+        </div>
+        <div
+          class="form-group col-md-6"
+          [class.has-error]="hasError('counterpartDocument')"
+        >
+          <label>CNPJ da Contraparte</label>
+          <input
+            [(ngModel)]="model.counterpartDocument"
+            type="text"
+            mask="00.000.000/0000-00"
+            maxlength="18"
+            class="form-control"
+            name="counterpartDocument"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta CETIP Contraparte</label>
+          <input
+            class="form-control text-box single-line"
+            name="counterpartCetipAccount"
+            maxlength="15"
+            [(ngModel)]="model.counterpartCetipAccount"
+            required
+            type="text"
+            value=""
+          />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Comando</label>
+          <input
+            class="form-control text-box single-line"
+            name="command"
+            id="counterpartCommand"
+            type="text"
+            maxlength="5"
+            value=""
+            [(ngModel)]="model.command"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <br />
+  <div class="form-group">
+    <label>Observações</label>
+    <textarea
+      class="form-control"
+      rows="5"
+      maxlength="120"
+      name="annotations"
+      [(ngModel)]="model.annotations"
+    >
+    </textarea>
+  </div>
+  <br />
+  <div class="form-group actions" *ngIf="canEdit()">
+    <input
+      type="button"
+      value="Salvar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="submit()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Encaminhar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="forward()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canChangeStatus()">
+    <input
+      type="button"
+      value="Aprovar"
+      class="btn btn-success"
+      appDebounceClick
+      (debounceClick)="approve()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Reprovar"
+      class="btn btn-danger"
+      appDebounceClick
+      (debounceClick)="reject()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canDuplicate()">
+    <input
+      type="button"
+      value="Duplicar"
+      class="btn btn-primary"
+      [disabled]="!model.id"
+      appDebounceClick
+      (debounceClick)="duplicate()"
+      [debounceTime]="200"
+    />
+  </div>
+</form>
+<app-workflow-history [ticketId]="model.id"></app-workflow-history>

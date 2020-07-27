@@ -1,0 +1,10 @@
+FROM alpine/git AS git-env
+WORKDIR /app
+
+RUN git clone -b develop --depth 1 https://cddlutkzlywfcooqu3xmprrerc2lagvsjpzbajmjcow46oq7t67a@dev.azure.com/itlabbrasil/Solve.FinancialMarketIntegration.Web/_git/Solve.FinancialMarketIntegration.API
+
+# SQL
+FROM mcr.microsoft.com/mssql-tools
+WORKDIR /app
+COPY --from=git-env /app/Solve.FinancialMarketIntegration.API/scripts/. ./
+

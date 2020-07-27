@@ -1,0 +1,36 @@
+version: '2.1'
+services:
+  features_api:
+    build:
+      context: .
+      dockerfile: Dockerfile-api
+    ports:
+      - '5000:80'
+    volumes:
+      - ./conf/appsettings.json:/app/appsettings.Development.json
+      - ./conf/appsettings.json:/app/appsettings.json
+      - ./conf/run-api.sh:/app/entrypoint.sh
+      - ./data/uploads:/app/uploads
+    working_dir: /app
+    entrypoint:
+      - sh
+      - entrypoint.sh
+  features_web:
+    build:
+      context: .
+      dockerfile: Dockerfile-web
+    ports:
+      - '80:80'
+    volumes:
+      - ./conf/nginx-conf:/etc/nginx/conf.d
+  features_db:
+    build:
+      context: .
+      dockerfile: Dockerfile-db
+    working_dir: /app
+    volumes:
+      - ./conf/recreate-db.sh:/app/entrypoint.sh
+    entrypoint:
+      - sh
+      - entrypoint.sh
+

@@ -1,0 +1,50 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Gerenciar Grupos
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-12"
+        >
+          <label>Grupo</label>
+          <input
+            type="text"
+            class="form-control"
+            name="name"
+            [(ngModel)]="model.name"
+            maxlength="100"
+            required
+          />
+        </div>
+      </div>
+      <div class="form-row">
+        <div
+        class="form-group col-md-12"
+        >
+          <label>Regras</label>
+          <ng-select
+            [items]="roles"
+            [multiple]="true"
+            bindLabel="name"
+            [closeOnSelect]="false"
+            bindValue="id"
+            [(ngModel)]="model.roles"
+            name="roles"
+            placeholder="Roles"
+            notFoundText="Nenhuma role encontrada">
+              <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                  <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected" name="roleSel-{{index}}" /> {{ item.name }}
+              </ng-template>
+          </ng-select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group actions">
+    <input type="button" value="Salvar" class="btn btn-primary" appDebounceClick
+      (debounceClick)="submit()" [debounceTime]="200" />
+  </div>
+</form>

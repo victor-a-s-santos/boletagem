@@ -1,0 +1,83 @@
+<mat-toolbar>
+  Visão Consolidada
+</mat-toolbar>
+
+<table mat-table [dataSource]="statusList" class="col-md-12">
+  <ng-container matColumnDef="Status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td class="align-middle" mat-cell *matCellDef="let element">
+      {{ element.Status }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="Quota">
+    <th mat-header-cell *matHeaderCellDef>Cotas</th>
+    <td
+      class="align-middle"
+      mat-cell
+      *matCellDef="let element"
+      (click)="goTo(1)"
+    >
+      {{ element.Quota }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="CETIP">
+    <th mat-header-cell *matHeaderCellDef>RF - Título Privado</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.CETIP)">
+      {{ element.CETIP }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="SELIC">
+    <th mat-header-cell *matHeaderCellDef>RF - Título Público</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.SELIC)">
+      {{ element.SELIC }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="Futures">
+    <th mat-header-cell *matHeaderCellDef>Futuros</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.Futures)">
+      {{ element.Futures }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="Margin">
+    <th mat-header-cell *matHeaderCellDef>Margem</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.Margin)">
+      {{ element.Margin }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="Contracted">
+    <th mat-header-cell *matHeaderCellDef>Compromissada</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.Contracted)">
+      {{ element.Contracted }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="CurrencyTerm">
+    <th mat-header-cell *matHeaderCellDef>Termo de Moeda</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.CurrencyTerm)">
+      {{ element.CurrencyTerm }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="VariableIncome">
+    <th mat-header-cell *matHeaderCellDef>Renda Variável</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.VariableIncome)">
+      {{ element.VariableIncome }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="SwapCetip">
+    <th mat-header-cell *matHeaderCellDef>Swap CETIP</th>
+    <td mat-cell *matCellDef="let element" (click)="goTo(TicketType.SwapCetip)">
+      {{ element.SwapCetip }}
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>

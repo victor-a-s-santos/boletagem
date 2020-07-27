@@ -1,0 +1,10 @@
+version: '2.1'
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+      - ./files:/usr/share/nginx/html/files

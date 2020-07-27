@@ -1,0 +1,156 @@
+<h3>Cadastrar Usuário {{ tipoUsuario }}</h3>
+
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <div class="card mt-3">
+      <div class="card-header text-uppercase">
+        Dados da Carteira
+      </div>
+      <div class="card-body">
+        <div class="form-row" *ngIf="canCreateMaster()">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>Usuário Externo</label>
+            <input type="checkbox" class="form-control" name="isExternalUser" [(ngModel)]="model.isExternalUser" (change)="updateTitle()" />
+          </div>
+        </div>
+        <div class="form-row" *ngIf="canCreateSubordinate() && !canCreateMaster()">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>Gestora:</label>
+            <p>{{ nomeGestora }}</p>
+          </div>
+        </div>
+        <div class="form-row" *ngIf="model.isExternalUser && canCreateMaster()">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>Gestora</label>
+            <ng-select
+              bindLabel="document"
+              bindValue="id"
+              [(ngModel)]="model.accountManagerId"
+              name="accountManagerId"
+              notFoundText="Nenhuma gestora encontrada"
+              placeholder="Gestora">
+              <ng-option *ngFor="let accManager of accountManagers" [value]="accManager.id">{{accManager.document + ' ' + accManager.name}}</ng-option>
+            </ng-select>
+          </div>
+        </div>
+        <div class="form-row">
+            <div
+            class="form-group col-md-12"
+            >
+              <label>Nome</label>
+              <input
+                type="text"
+                class="form-control"
+                name="name"
+                [(ngModel)]="model.name"
+                placeholder="Nome"
+                required
+              />
+            </div>
+        </div>
+        <div class="form-row">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>E-mail</label>
+            <input
+              type="text"
+              class="form-control"
+              name="email"
+              [(ngModel)]="model.email"
+              placeholder="E-mail"
+              pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div
+          class="form-group col-md-12"
+          [class.has-error]="hasError('userDocument')"
+          >
+            <label>CPF</label>
+            <input
+              type="text"
+              class="form-control"
+              name="userDocument"
+              [(ngModel)]="model.userDocument"
+              placeholder="CPF"
+              required
+              [textMask]="{
+                mask: validator.documentPhysicalPersonMask,
+                guide: false
+              }"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>Login</label>
+            <input
+              type="text"
+              class="form-control"
+              name="userName"
+              [(ngModel)]="model.userName"
+              placeholder="Login"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>Grupos</label>
+            <ng-select
+              [items]="groups"
+              [multiple]="true"
+              bindLabel="name"
+              [closeOnSelect]="false"
+              bindValue="id"
+              [(ngModel)]="model.groups"
+              name="groups"
+              placeholder="Grupos"
+              notFoundText="Nenhum grupo encontrado">
+                <ng-template ng-option-tmp let-item="item" let-item$="item$" let-index="index">
+                    <input id="item-{{index}}" type="checkbox" [ngModel]="item$.selected" name="groupSel-{{index}}" /> {{ item.name }}
+                </ng-template>
+            </ng-select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label>Bloqueio Até</label>
+            <input
+              type="text"
+              class="form-control"
+              name="lockoutEndDateUtc"
+              [(ngModel)]="model.lockoutEndDateUtc"
+              [textMask]="{ mask: validator.dateMask, guide: false }"
+              placeholder="Bloqueio Até"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div
+          class="form-group col-md-12"
+          >
+            <label>Ativo</label>
+            <input class="form-control" id="active" name="active" [(ngModel)]="model.active" type="checkbox" />
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="form-group actions">
+    <input type="button" value="Salvar" class="btn btn-primary" appDebounceClick
+      (debounceClick)="submit()" [debounceTime]="200" />
+  </div>
+</form>

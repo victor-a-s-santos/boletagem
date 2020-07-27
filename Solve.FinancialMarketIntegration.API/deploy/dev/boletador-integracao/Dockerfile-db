@@ -1,0 +1,17 @@
+FROM alpine/git AS git-env
+ARG OLD_ENV=master
+ARG NEW_ENV=develop
+WORKDIR /app/old_env
+
+RUN git clone -b $OLD_ENV --depth 1 https://cddlutkzlywfcooqu3xmprrerc2lagvsjpzbajmjcow46oq7t67a@dev.azure.com/itlabbrasil/Solve.FinancialMarketIntegration.Web/_git/Solve.FinancialMarketIntegration.API
+
+WORKDIR /app/new_env
+
+RUN git clone -b $NEW_ENV --depth 1 https://cddlutkzlywfcooqu3xmprrerc2lagvsjpzbajmjcow46oq7t67a@dev.azure.com/itlabbrasil/Solve.FinancialMarketIntegration.Web/_git/Solve.FinancialMarketIntegration.API
+
+# SQL
+FROM mcr.microsoft.com/mssql-tools
+WORKDIR /app
+COPY --from=git-env /app/old_env/Solve.FinancialMarketIntegration.API/scripts/. ./old_env/
+COPY --from=git-env /app/new_env/Solve.FinancialMarketIntegration.API/scripts/. ./new_env/
+

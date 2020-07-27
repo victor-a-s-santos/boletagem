@@ -1,0 +1,14 @@
+version: '2.1'
+services:
+  mssql:
+    image: 'microsoft/mssql-server-linux'
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=sA123456
+    ports:
+      - '1433:1433'
+    volumes:
+      - ms-sqlserver-data:/var/opt/mssql
+volumes:
+  ms-sqlserver-data:
+    driver: local

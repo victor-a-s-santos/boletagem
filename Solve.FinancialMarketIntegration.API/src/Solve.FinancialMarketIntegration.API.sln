@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solve.FinancialMarketIntegration.API", "Solve.FinancialMarketIntegration.API.csproj", "{86766FB0-5701-495B-9E82-7B34EA082ABA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solve.FinancialMarketIntegration.API.Tests", "..\tests\Solve.FinancialMarketIntegration.API.Tests.csproj", "{0EFF4D26-BFB3-4F3D-8DF5-9F85953E56DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{86766FB0-5701-495B-9E82-7B34EA082ABA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86766FB0-5701-495B-9E82-7B34EA082ABA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86766FB0-5701-495B-9E82-7B34EA082ABA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86766FB0-5701-495B-9E82-7B34EA082ABA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EFF4D26-BFB3-4F3D-8DF5-9F85953E56DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EFF4D26-BFB3-4F3D-8DF5-9F85953E56DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EFF4D26-BFB3-4F3D-8DF5-9F85953E56DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EFF4D26-BFB3-4F3D-8DF5-9F85953E56DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BFC1EF36-89EF-4DA4-8434-F9C78721B913}
+	EndGlobalSection
+EndGlobal

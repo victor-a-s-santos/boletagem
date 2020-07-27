@@ -1,0 +1,38 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <style>
+    label {
+      padding-right: 15px;
+    }
+  </style>
+  <h3>Upload de Arquivo PESC (Boleta de Renda Variável)</h3>
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados do arquivo de upload
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div
+          class="form-group col-md-12"
+        >
+          <label>Gestor</label>
+          <select name="accountManagerId" [(ngModel)]="model.accountManagerId" required>
+            <option *ngFor="let item of AccountManagers; index as i" [value]="item.id">{{item.name}} ({{item.document}})</option>
+          </select>            
+        </div>
+      </div>
+      <div class="form-row">
+        <div
+          class="form-group col-md-12"
+        >
+          <label>Arquivo</label>
+          <input type="file" name="file" (change)="openFile($event)"/>
+        </div>
+      </div>
+      <div class="form-group actions">
+        <input type="button" value="Upload" class="btn btn-primary" appDebounceClick
+          (debounceClick)="submit()" [debounceTime]="200" />
+      </div>
+    </div>
+  </div>
+  
+</form>

@@ -1,0 +1,31 @@
+<div class="form">
+  <h2 mat-dialog-title *ngIf="title">{{ title }}</h2>
+  <mat-dialog-content 
+    *ngIf="message"
+    [formGroup]="form"
+  >
+    {{ message}}
+    <mat-form-field class="full-width" appearance="outline">
+      <input
+        matInput
+        cdkFocusInitial
+        formControlName="justification"
+        placeholder="Qual a justificativa para reprovar?"
+      />
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button
+      mat-button
+      (click)="close()"
+    >
+    Não
+    </button>
+    <button 
+      mat-button
+      (click)="confirmRejection()"
+    >
+    Sim
+    </button>
+  </mat-dialog-actions>
+</div>

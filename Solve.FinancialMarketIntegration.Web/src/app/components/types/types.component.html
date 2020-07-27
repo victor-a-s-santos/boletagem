@@ -1,0 +1,18 @@
+<section>
+  <h4>Listar Tipos</h4>
+  <div style="max-width: 400px">
+    <div>
+      <input type="submit" class="btn btn-primary" (click)="list()" />
+    </div>
+
+    <div *ngFor="let type of types" class="row">
+      <span class="col-md-6">
+        {{ type.id }}
+      </span>
+      <span class="col-md-6">
+        {{ type.name }}
+      </span>
+    </div>
+  </div>
+
+</section>

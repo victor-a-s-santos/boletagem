@@ -1,0 +1,156 @@
+<form class="form-horizontal" (ngSubmit)="Submit(thisForm)" #thisForm="ngForm">
+  <app-dados-boleta titulo="Dados da Boleta Renda Variável" [operationDate]="model.operationDate" [id]="model.id" [statusDescription]="model.statusDescription">
+  </app-dados-boleta>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Carteira
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Conta B3</label>
+          <input
+            type="text"
+            class="form-control"
+            name="b3Account"
+            [(ngModel)]="model.clientCode"
+            disabled="diabled"
+          />
+        </div>
+        <div class="form-group col-md-6">
+          <label>Data B3</label>
+          <input
+            type="text"
+            class="form-control"
+            name="stockExchangeDate"
+            value="{{model.stockExchangeDate | date:'dd/MM/yyyy'}}"
+            disabled="diabled"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Operação
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label>Código da Corretora</label>
+          <input type="text"
+                 class="form-control"
+                 disabled="diabled"
+                 name="brokerCode"
+                 [(ngModel)]="model.brokerCode" />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Total Compra</label>
+          <input type="text"
+                  class="form-control"
+                  disabled="diabled"
+                  name="brokerCode"
+                  value="{{ model.buyTotal|currency:'R$':'symbol':'1.2-2' }}" />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Total Venda</label>
+          <input type="text"
+                  class="form-control"
+                  disabled="diabled"
+                  name="brokerCode"
+                  value="{{ model.sellTotal|currency:'R$':'symbol':'1.2-2' }}" />
+        </div>
+        <div class="form-group col-md-3">
+          <label>Total Operação</label>
+          <input type="text"
+                  class="form-control"
+                  disabled="diabled"
+                  name="brokerCode"
+                  value="{{ model.buyTotal-model.sellTotal|currency:'R$':'symbol':'1.2-2' }}" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card mt-3">
+    <mat-toolbar>
+      Itens da Boleta
+    </mat-toolbar>
+
+    <table mat-table [dataSource]="model.items" class="col-md-12">
+      <ng-container matColumnDef="MarketType">
+        <th mat-header-cell *matHeaderCellDef>Mercado</th>
+        <td class="align-middle" mat-cell *matCellDef="let element">
+          {{ element.marketType }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="BuySell">
+        <th mat-header-cell *matHeaderCellDef>Compra / Venda</th>
+        <td
+          class="align-middle"
+          mat-cell
+          *matCellDef="let element"
+        >
+          {{ element.buyOrSell }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Asset">
+        <th mat-header-cell *matHeaderCellDef>Título</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.tradingCode }} - {{ element.companyName }} {{ element.specification }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Amount">
+        <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.amount }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Price">
+        <th mat-header-cell *matHeaderCellDef>Valor</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.price|currency:'R$':'symbol':'1.2-2' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="TotalPrice">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.amount*element.price|currency:'R$':'symbol':'1.2-2' }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
+
+  <div class="form-group actions" *ngIf="canChangeStatus()">
+    <input
+      type="button"
+      value="Aprovar"
+      class="btn btn-success"
+      appDebounceClick
+      (debounceClick)="approve()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Reprovar"
+      class="btn btn-danger"
+      appDebounceClick
+      (debounceClick)="reject()"
+      [debounceTime]="200"
+    />
+  </div>
+
+</form>
+
+<br>
+
+<app-workflow-history [ticketId]="model.id" [hideDraftStatus]="true"></app-workflow-history>

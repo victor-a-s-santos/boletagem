@@ -1,0 +1,29 @@
+FROM alpine/git AS git-env
+WORKDIR /app
+
+RUN git clone -b master --depth 1 https://cddlutkzlywfcooqu3xmprrerc2lagvsjpzbajmjcow46oq7t67a@dev.azure.com/itlabbrasil/Solve.FinancialMarketIntegration.Web/_git/Solve.FinancialMarketIntegration.API
+
+FROM microsoft/dotnet:2.2-sdk-alpine AS build-env
+WORKDIR /app
+
+# Copiar csproj e restaurar dependencias
+COPY --from=git-env /app/Solve.FinancialMarketIntegration.API/src/*.csproj ./
+RUN dotnet restore
+
+# Build da aplicacao
+COPY --from=git-env /app/Solve.FinancialMarketIntegration.API/src/. ./
+RUN dotnet publish -c Release -o out
+
+# EF
+COPY appsettings.json ./
+
+# Build da imagem
+FROM microsoft/dotnet:2.2-aspnetcore-runtime-bionic
+WORKDIR /app
+COPY --from=build-env /app/out .
+COPY entrypoint.sh .
+
+RUN apt-get update && apt-get install -y --no-install-recommends libgdiplus libc6-dev && rm -rf /var/lib/apt/lists/*
+
+ENTRYPOINT ["sh", "entrypoint.sh"]
+

@@ -1,0 +1,297 @@
+<form #thisForm="ngForm" (ngSubmit)="submit()">
+  <app-dados-boleta
+    titulo="Dados da Boleta Termo de Moeda"
+    [operationDate]="this.model.operationDate"
+    [id]="model.id"
+    [statusDescription]="model.statusDescription"
+  >
+  </app-dados-boleta>
+
+  <app-dados-carteira tipo="CETIP" [canEdit]="canEdit()" #carteira> </app-dados-carteira>
+
+  <div class="card mt-3">
+    <div class="card-header text-uppercase">
+      Dados da Operação
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Tipo Operação</label>
+
+          <app-radio-list
+            [invalid]="this.model.operationTypeId == null && thisForm.touched"
+            [list]="this.TiposOperacao"
+            [(model)]="this.model.operationTypeId"
+            name="operationTypeId"
+            modelChange="this.model.operationTypeId = $event"
+          >
+          </app-radio-list>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label for="tipo-cetip">Tipo Liquidação</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input
+                type="checkbox"
+                id="tipo-cetip"
+                name="cetipSettlement"
+                class="form-check-input"
+                [value]="true"
+                [(ngModel)]="model.cetipSettlement"
+              />
+              <label>CETIP</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Valor da Operação</label>
+          <input
+            type="text"
+            class="form-control"
+            name="operationValue"
+            [(ngModel)]="model.operationValue"
+            [textMask]="{ mask: validator.currencyMaskDoubleDecimal }"
+            maxlength="21"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Número Contrato</label>
+          <input
+            type="text"
+            class="form-control"
+            name="contractNumber"
+            [(ngModel)]="model.contractNumber"
+            maxlength="15"
+            required
+          />
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Taxa da Futura</label>
+          <input
+            type="text"
+            class="form-control"
+            name="futuraFee"
+            [(ngModel)]="model.futureFee"
+            required
+            maxlength="16"
+            [textMask]="{ mask: validator.decimalFutureFeeMask }"
+          />
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Cotação Vencimento</label>
+          <mat-select
+            [class.required-active]="
+              thisForm.touched && this.model.quoteExpirationTypeId == null
+            "
+            required
+            class="form-control"
+            [(value)]="this.model.quoteExpirationTypeId"
+          >
+            <mat-option>(nenhum)</mat-option>
+
+            <mat-option
+              *ngFor="let item of listaCotacaovencimento"
+              name="status"
+              [value]="item.id"
+            >
+              {{ item.name }}
+            </mat-option>
+          </mat-select>
+
+          <!--
+          <app-radio-list
+            [list]="this.listaCotacaovencimento"
+            [(model)]="this.model.quoteExpirationTypeId"
+            name="quoteExpirationTypeId"
+            modelChange="this.model.quoteExpirationTypeId = $event"
+          >
+          </app-radio-list> -->
+
+          <!-- <input
+            type="text"
+            class="form-control"
+            name="quoteExpirationTypeId"
+            [(ngModel)]="model.quoteExpirationTypeId"
+            required
+          /> -->
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>Moeda</label>
+          <mat-select
+            [class.required-active]="
+              thisForm.touched && this.model.currencyId == null
+            "
+            required
+            class="form-control"
+            [(value)]="this.model.currencyId"
+          >
+            <mat-option *ngFor="let item of Moedas" [value]="item.id">
+              {{ item.name }}
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="form-group  col-md-4">
+          <label>Cross Rate</label>
+          <div
+            [class.required-active]="
+              model.crossRate == null && thisForm.touched
+            "
+          >
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                [(ngModel)]="model.crossRate"
+                id="termo-1"
+                name="termo"
+                type="radio"
+                [value]="true"
+                required
+              />
+              <label class="form-check-label" for="termo-1">Sim</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input
+                class="form-check-input"
+                [(ngModel)]="model.crossRate"
+                id="termo-0"
+                name="termo"
+                type="radio"
+                [value]="false"
+                required
+              />
+              <label class="form-check-label" for="termo-0">Não</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group col-md-4" [class.has-error]="hasError('expirationDate')">
+          <label>Data Vencimento</label>
+          <div class="form-inline">
+            <input
+              class="form-control col-12"
+              name="expirationDate"
+              maxlength="10"
+              [(ngModel)]="model.expirationDate"
+              [textMask]="{ mask: validator.dateMask, guide: false }"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label>Nome Contraparte</label>
+          <input
+            type="text"
+            class="form-control"
+            name="counterpartName"
+            [(ngModel)]="model.counterpart.name"
+            required
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label>CNPJ da Contraparte</label>
+          <input
+            type="text"
+            mask="00.000.000/0000-00"
+            maxlength="18"
+            class="form-control"
+            name="counterpartDocument"
+            [(ngModel)]="model.counterpart.document"
+            required
+          />
+        </div>
+
+        <div class="form-group col-md-3">
+          <label>Conta CETIP da Contraparte</label>
+          <input
+            type="text"
+            maxlength="8"
+            class="form-control"
+            name="cetipAccount"
+            [(ngModel)]="model.counterpart.clearingAccount"
+            required
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <br />
+  <div class="form-group">
+    <label>Observações</label>
+    <textarea
+      class="form-control"
+      rows="5"
+      name="annotations"
+      [(ngModel)]="model.annotations"
+    >
+    </textarea>
+  </div>
+
+  <div class="form-group actions" *ngIf="canEdit()">
+    <input
+      type="button"
+      value="Salvar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="submit()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Encaminhar"
+      class="btn btn-primary"
+      [disabled]="!canEdit()"
+      appDebounceClick
+      (debounceClick)="forward()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canChangeStatus()">
+    <input
+      type="button"
+      value="Aprovar"
+      class="btn btn-success"
+      appDebounceClick
+      (debounceClick)="approve()"
+      [debounceTime]="200"
+    />
+    <input
+      type="button"
+      value="Reprovar"
+      class="btn btn-danger"
+      appDebounceClick
+      (debounceClick)="reject()"
+      [debounceTime]="200"
+    />
+  </div>
+
+  <div class="form-group actions" *ngIf="canDuplicate()">
+    <input
+      type="button"
+      value="Duplicar"
+      class="btn btn-primary"
+      [disabled]="!model.id"
+      appDebounceClick
+      (debounceClick)="duplicate()"
+      [debounceTime]="200"
+    />
+  </div>
+</form>
+
+<app-workflow-history [ticketId]="model.id"></app-workflow-history>

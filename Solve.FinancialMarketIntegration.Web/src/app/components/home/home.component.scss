@@ -1,0 +1,25 @@
+@media (min-width: 767px) {
+  #main {
+    width: calc(100% - 300px);
+    height: 100vh;
+    float: right;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}
+
+#content {
+  min-height: calc(100% - 62px);
+  margin: 0;
+}
+
+.environment-local{
+  color: rgb(17, 0, 252);
+}
+
+.environment-development{
+  color: rgb(17, 0, 252);
+}
+.environment-Staging{
+  color: rgb(250, 4, 4);
+}

@@ -1,0 +1,29 @@
+<div class="login-box">
+  <div class="login-logo">
+    <img src="assets/img/socopa-logo.png">
+  </div>
+  <div class="login-box-body">
+    <form [formGroup]="login">
+      <div class="form-group has-feedback" [class.has-error]="username.invalid && username.dirty">
+        <input type="text" class="form-control" placeholder="Usuário" formControlName="username">
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        <div class="help-block" [hidden]="username.valid || username.pristine">
+          Usuário inválido
+        </div>
+      </div>
+      <div class="form-group has-feedback" [class.has-error]="password.invalid && password.dirty">
+        <input type="password" class="form-control" placeholder="Senha" formControlName="password">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        <div class="help-block" [hidden]="!password.hasError('required') || password.pristine">
+          Senha inválida
+        </div>
+        <div class="help-block" [hidden]="!password.hasError('minlength') || password.pristine">
+          A senha precisa ter no mínimo 8 caracteres
+        </div>
+      </div>
+      <button class="btn btn-primary btn-block btn-flat" (click)="signin()"
+        [disabled]="isAuthenticating">Entrar</button>
+      <br>
+      <!-- <a href="/password-reset">Esqueci minha senha</a> -->
+    </form>
+  </div>

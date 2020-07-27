@@ -1,0 +1,77 @@
+mat-expansion-panel {
+  .table-container {
+    overflow: auto;
+    max-height: 50vh;
+
+    table {
+      width: 100%;
+      white-space: nowrap;
+    }
+  }
+
+  tr.mat-row {
+    &:hover {
+      background-color: #d4f2ef;
+    }
+
+    .actions {
+      min-width: 50px;
+
+      div {
+        display: flex;
+        align-items: center;
+        padding-left: 5px;
+        padding-right: 5px;
+
+        * {
+          padding-left: 5px;
+          padding-right: 5px;
+          text-align: center;
+          margin: 0 auto;
+        }
+
+        mat-checkbox {
+          padding-top: 5px;
+        }
+
+        a {
+          color: rgb(54, 170, 161);
+        }
+
+        i {
+          cursor: pointer;
+          padding-bottom: 5px;
+          font-size: 19px;
+        }
+      }
+    }
+  }
+}
+
+mat-card-content {
+  padding: 0;
+
+  button {
+    min-width: 75%;
+  }
+}
+
+td.mat-cell:first-of-type,
+td.mat-footer-cell:first-of-type,
+th.mat-header-cell:first-of-type {
+  padding-left: 0px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.has-error{
+  mat-form-field {
+    color: red;
+  }
+}

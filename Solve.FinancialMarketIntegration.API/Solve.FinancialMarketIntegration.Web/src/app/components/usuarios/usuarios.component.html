@@ -1,0 +1,75 @@
+<mat-toolbar class="text-uppercase">
+  <mat-toolbar-row>
+    <span>Usuários</span>
+    <span class="spacer"></span>
+    <button mat-raised-button color="primary" (click)="exportUsers()" class="export">Exportar</button>
+    <button mat-raised-button color="primary" (click)="openUser()">Novo</button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-accordion *ngIf="canCreateMaster()">
+  <mat-card>
+    <mat-card-header> </mat-card-header>
+    <mat-card-content>
+      <form #thisForm="ngForm">
+        <div class="row">
+          <div
+          class="form-group col-md-12"
+          >
+          <label>Usuário Externo</label>
+          <input type="checkbox" class="form-control" name="isExternalUser" [(ngModel)]="isExternalUser" (change)="getUsers()" />
+          </div>
+        </div>
+        <div class="row" *ngIf="isExternalUser === true">
+            <div
+            class="form-group col-md-12"
+            >
+            <ng-select
+              bindLabel="document"
+              bindValue="id"
+              name="accountManagerId"
+              notFoundText="Nenhuma gestora encontrada"
+              placeholder="Gestora"
+              [(ngModel)]="selectedAccManagerId"
+              (change)="getUsers(selectedAccManagerId)">
+              <ng-option *ngFor="let accManager of accountManagers" [value]="accManager.id">{{accManager.document + ' ' + accManager.name}}</ng-option>
+            </ng-select>
+            </div>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</mat-accordion>
+
+<table mat-table [dataSource]='model' class="usuarios">
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let user" class="actions">
+      <i class="fa fa-lg fa-list-alt" (click)="openUser(user.id)"></i>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef> Nome </th>
+    <td mat-cell *matCellDef="let user"> {{ user.name }} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef> E-mail </th>
+    <td mat-cell *matCellDef="let user"> {{ user.email }} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="userName">
+    <th mat-header-cell *matHeaderCellDef> Login </th>
+    <td mat-cell *matCellDef="let user"> {{ user.userName }} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="active">
+    <th mat-header-cell *matHeaderCellDef> Ativo </th>
+    <td mat-cell *matCellDef="let user"> {{ user.active ? 'Sim' : 'Não' }} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

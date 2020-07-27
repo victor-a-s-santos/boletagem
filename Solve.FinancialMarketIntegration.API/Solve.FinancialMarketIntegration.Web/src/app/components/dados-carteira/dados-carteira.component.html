@@ -1,0 +1,61 @@
+<form class="card mt-3" #thisForm="ngForm">
+  <div class="card-header text-uppercase">
+    Dados da Carteira
+  </div>
+  <div class="card-body">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label>CNPJ</label>
+        <input
+          [(ngModel)]="carteira.document"
+          mask="00.000.000/0000-00"
+          type="text"
+          class="form-control"
+          name="document"
+          required
+        />
+      </div>
+      <div class="form-group col-md-6">
+        <label>Conta Corrente</label>
+        <input
+          [(ngModel)]="carteira.account"
+          [textMask]="{ mask: validator.numericMask, guide: false }"
+          type="text"
+          class="form-control"
+          name="contaCorrente"
+          maxlength="10"
+          pattern="\d+-?\d*"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Nome do Fundo</label>
+      <input
+        [(ngModel)]="carteira.name"
+        type="text"
+        class="form-control"
+        name="portfolioName"
+        required
+        maxlength="90"
+        pattern="[0-9a-zA-Z\u00C0-\u00D6\u00D9-\u00DC\u00E0-\u00fc\s]*"
+      />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label>Conta {{ tipo }}</label>
+        <input
+          [(ngModel)]="carteira.clearingAccount"
+          type="text"
+          class="form-control"
+          name="conta"
+          pattern="\w+-?\w*"
+          maxlength="10"
+          required
+        />
+      </div>
+    </div>
+  </div>
+</form>

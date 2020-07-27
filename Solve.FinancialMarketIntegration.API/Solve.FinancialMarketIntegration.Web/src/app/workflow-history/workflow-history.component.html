@@ -1,0 +1,16 @@
+<table *ngIf="history && history.length > 0" class="table table-striped table-hover">
+  <thead class="thead-dark">
+    <th scope="col">Data</th>
+    <th scope="col">Status</th>
+    <th scope="col">Autor</th>
+    <th scope="col">Justificativa</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of history">
+      <td>{{ item.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+      <td>{{ item.statusId >= 0 ? item.nextStep.description : item.description }}</td>
+      <td>{{ item.userName }}</td>
+      <td>{{ item.justificative }}</td>
+    </tr>
+  </tbody>
+</table>

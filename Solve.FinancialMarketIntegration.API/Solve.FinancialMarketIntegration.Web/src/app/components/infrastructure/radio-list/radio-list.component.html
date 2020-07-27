@@ -1,0 +1,19 @@
+<div [class.required-active]="invalid">
+  <div
+    class="form-check form-check-inline"
+    *ngFor="let item of list; index as i"
+  >
+    <input
+      class="form-check-input"
+      type="radio"
+      id="{{ this.name + '-' + i + '-id' }}"
+      name="{{ name }}"
+      [(ngModel)]="model"
+      [value]="item.id"
+      (change)="onSelectionChange(item)"
+    />
+    <label class="form-check-label" for="{{ this.name + '-' + i + '-id' }}">
+      {{ item.name }}
+    </label>
+  </div>
+</div>

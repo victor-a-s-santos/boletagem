@@ -1,0 +1,1742 @@
+<mat-toolbar class="text-uppercase">
+  <mat-toolbar-row>
+    <span>Monitor</span>
+    <span class="spacer"></span>
+    <button mat-raised-button color="primary" (click)="export()">
+      Exportar
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-accordion>
+  <form #thisForm="ngForm">
+    <mat-card>
+      <mat-card-header> </mat-card-header>
+      <mat-card-content class="container-fluid">
+        <div class="row">
+          <div class="form-group col-md-2" [class.has-error]="periodoError()">
+            <mat-form-field >
+              <input
+                matInput
+                name="periodoDe"
+                [(ngModel)]="PeriodoDe"
+                [matDatepicker]="picker"
+                placeholder="Período de"
+              />
+              <mat-datepicker-toggle matSuffix [for]="picker">
+              </mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="form-group col-md-2" [class.has-error]="periodoError()">
+            <mat-form-field>
+              <input
+                matInput
+                name="periodoAte"
+                [(ngModel)]="PeriodoAte"
+                [matDatepicker]="picker2"
+                placeholder="Até"
+              />
+              <mat-datepicker-toggle matSuffix [for]="picker2">
+              </mat-datepicker-toggle>
+              <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field>
+              <mat-label>Status</mat-label>
+              <mat-select [(ngModel)]="WorkflowStatusFilter" name="workflowStatus">
+                  <mat-option [value]="null">
+                    (todos)
+                  </mat-option>
+                  <mat-option *ngFor="let item of WorkflowStatus" [value]="item.id">
+                    {{ item.name }}
+                  </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field>
+              <mat-label>Boleta</mat-label>
+              <mat-select [(ngModel)]="TicketTypeFilter" name="ticketType">
+                <mat-option [value]="null">
+                  (todas)
+                </mat-option>
+                <mat-option *ngFor="let item of TicketTypes" [value]="item.id">
+                  {{ item.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-5">
+            <mat-form-field>
+              <input
+                matInput
+                type="text"
+                placeholder="Nome"
+                [(ngModel)]="Nome"
+                name="nome"
+              />
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field>
+              <input
+                matInput
+                type="text"
+                placeholder="CNPJ"
+                [(ngModel)]="CNPJ"
+                name="cnpj"
+                pattern="\d{2}[.]\d{3}[.]\d{3}\/\d{4}-\d{2}"
+                [textMask]="{
+                  mask: validator.documentLegalPersonMask,
+                  guide: false
+                }"
+              />
+            </mat-form-field>
+          </div>
+          <div class="col-md-2">
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="clear()"
+            >
+              Limpar
+            </button>
+          </div>
+          <div class="col-md-2">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              (click)="filter()"
+            >
+              Buscar
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </form>
+  <br />
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.Quota)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.Quota"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.Quota)"
+  >
+    <mat-expansion-panel-header>
+      Cotas - ({{ this.Quotas ? this.Quotas.length : 0 }})
+    </mat-expansion-panel-header>
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.Quota)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.Quota)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.Quota)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.Quota)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="Quotas" class="col-md-12">
+        <!--- Note that these columns can be defined in any order.
+            The actual rendered columns are set as a property on the row definition" -->
+
+        <!-- Position Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="cetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Cetip</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioCetipAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ OperationTypesDescription[element.operationTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fundType">
+          <th mat-header-cell *matHeaderCellDef>Tipo Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fundType }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="settlementTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Liquidação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ SettlemenTypesDescription[element.settlementTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fundName">
+          <th mat-header-cell *matHeaderCellDef>Nome Fundo Investido</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fundName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="quotaValue">
+          <th mat-header-cell *matHeaderCellDef>Valor Cota</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.quotaValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="isCetipVoice">
+          <th mat-header-cell *matHeaderCellDef>CETIP Voice</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.isCetipVoice ? "SIM" : "NÃO" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationValue">
+          <th mat-header-cell *matHeaderCellDef>Valor Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.amount | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="mnemonicCode">
+          <th mat-header-cell *matHeaderCellDef>Código Mnemonico Cetip</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.mnemonicCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Cetip Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartCetipAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fundBank">
+          <th mat-header-cell *matHeaderCellDef>Banco</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fundBank }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fundBranch">
+          <th mat-header-cell *matHeaderCellDef>Agência</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fundBranch }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fundAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.fundAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="isNewFund">
+          <th mat-header-cell *matHeaderCellDef>Emissão Nova</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.isNewFund ? "SIM" : "NÃO" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+            <!-- <mat-checkbox (change)="$event ? masterToggle(TicketTypeEnum.Quota) : null"
+              [checked]="SelectionQuotas.hasValue() && isAllSelected(TicketTypeEnum.Quota)"
+              [indeterminate]="SelectionQuotas.hasValue() && !isAllSelected(TicketTypeEnum.Quota)">
+            </mat-checkbox> -->
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.Quota, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionQuotas.toggle(element) : null"
+                [checked]="SelectionQuotas.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.Quota, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="ColumnsQuota; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsQuota"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.CETIP)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.CETIP"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.CETIP)"
+  >
+    <mat-expansion-panel-header>
+      Renda Fixa - Título Privado - ({{
+        this.PrivateFixedIncome ? this.PrivateFixedIncome.length : 0
+      }})
+    </mat-expansion-panel-header>
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.CETIP)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.CETIP)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.CETIP)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.CETIP)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="PrivateFixedIncome"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="portfolioCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Cetip</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioCetipAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="secondaryMarket">
+          <th mat-header-cell *matHeaderCellDef>Mercado Secundário</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.secondaryMarket ? "SIM" : "NÃO" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ OperationTypesDescription[element.operationTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationValue">
+          <th mat-header-cell *matHeaderCellDef>Valor Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="unitPrice">
+          <th mat-header-cell *matHeaderCellDef>Preço Unitário</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.unitPrice | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.amount | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="assetType">
+          <th mat-header-cell *matHeaderCellDef>Tipo Ativo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.assetType }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="assetCode">
+          <th mat-header-cell *matHeaderCellDef>Código Ativo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.assetCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expirationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Vencimento</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.expirationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Cetip Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartCetipAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.CETIP, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionPrivateFixedIncome.toggle(element) : null"
+                [checked]="SelectionPrivateFixedIncome.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.PrivateFixedIncome, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="ColumnsPrivateFixedIncome; sticky: true"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: ColumnsPrivateFixedIncome"
+        ></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.SELIC)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.SELIC"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.SELIC)"
+  >
+    <mat-expansion-panel-header>
+      Renda Fixa - Título Público - ({{
+        this.PublicFixedIncome ? this.PublicFixedIncome.length : 0
+      }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.SELIC)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.SELIC)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.SELIC)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.SELIC)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="PublicFixedIncome"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="portfolioSelicAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Selic</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioSelicAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="settlementTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Liquidação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ SettlemenTypesDescription[element.settlementTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ OperationTypesDescription[element.operationTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationValue">
+          <th mat-header-cell *matHeaderCellDef>Valor Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="unitPrice">
+          <th mat-header-cell *matHeaderCellDef>Preço Unitário</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.unitPrice | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.amount | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="security">
+          <th mat-header-cell *matHeaderCellDef>Título</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.security }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="securityId">
+          <th mat-header-cell *matHeaderCellDef>Código Título</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.securityId }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expirationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Vencimento</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.expirationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="settlementDate">
+          <th mat-header-cell *matHeaderCellDef>Data Liquidação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.settlementDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartSelicAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Selic Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartSelicAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="command">
+          <th mat-header-cell *matHeaderCellDef>Comando</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.command }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.SELIC, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionPublicFixedIncome.toggle(element) : null"
+                [checked]="SelectionPublicFixedIncome.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.PublicFixedIncome, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="ColumnsPublicFixedIncome; sticky: true"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: ColumnsPublicFixedIncome"
+        ></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.Contracted)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.Contracted"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.Contracted)"
+  >
+    <mat-expansion-panel-header>
+      Compromissada de Compra - ({{
+        this.Contracted ? this.Contracted.length : 0
+      }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+        <button
+          *ngIf="hasForwardRole(TicketTypeEnum.Contracted)"
+          mat-raised-button
+          color="primary"
+          type="submit"
+          (click)="forwardMany(TicketTypeEnum.Contracted)"
+        >
+          Encaminhar
+        </button>
+        <button
+          *ngIf="hasApproveRole(TicketTypeEnum.Contracted)"
+          mat-raised-button
+          color="primary"
+          type="submit"
+          (click)="approveMany(TicketTypeEnum.Contracted)"
+        >
+          Aprovar
+        </button>
+      </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="Contracted"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="portfolioSelicAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Selic</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioSelicAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="returnDate">
+          <th mat-header-cell *matHeaderCellDef>Data Retorno</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.returnDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="valueOutward">
+          <th mat-header-cell *matHeaderCellDef>Valor Ida</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.valueOutward | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="valueReturn">
+          <th mat-header-cell *matHeaderCellDef>Valor Volta</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.valueReturn | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="issueTax">
+          <th mat-header-cell *matHeaderCellDef>Taxa</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.issueTax }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="security">
+          <th mat-header-cell *matHeaderCellDef>Título</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.security }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="securityId">
+          <th mat-header-cell *matHeaderCellDef>Código Título</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.securityId }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expirationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Vencimento</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.expirationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="command">
+          <th mat-header-cell *matHeaderCellDef>Comando</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.command }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.Contracted, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionContracted.toggle(element) : null"
+                [checked]="SelectionContracted.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.Contracted, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="ColumnsContracted; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsContracted"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.Futures)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.Futures"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.Futures)"
+  >
+    <mat-expansion-panel-header>
+      Futuros - ({{ this.Futures ? this.Futures.length : 0 }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.Futures)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.Futures)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.Futures)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.Futures)"
+      >
+        Aprovar
+      </button>
+      </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="Futures"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="portfolioB3Account">
+          <th mat-header-cell *matHeaderCellDef>Conta B3</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioB3Account }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tradingDate">
+          <th mat-header-cell *matHeaderCellDef>Data Pregão</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.tradingDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ OperationTypesDescription[element.operationTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="paperCode">
+          <th mat-header-cell *matHeaderCellDef>Código Papel</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.paperCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.amount | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="broker">
+          <th mat-header-cell *matHeaderCellDef>Nome Corretora Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.broker }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="brokerCode">
+          <th mat-header-cell *matHeaderCellDef>Código Corretora B3</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.brokerCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.Futures, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionFutures.toggle(element) : null"
+                [checked]="SelectionFutures.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.Futures, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="ColumnsFutures; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsFutures"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.SwapCetip)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.SwapCetip"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.SwapCetip)"
+  >
+    <mat-expansion-panel-header>
+      Swap CETIP - ({{ this.SwapCetip ? this.SwapCetip.length : 0 }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.SwapCetip)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.SwapCetip)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.SwapCetip)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.SwapCetip)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="SwapCetip"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="portfolioCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Cetip</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioCetipAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationValue">
+          <th mat-header-cell *matHeaderCellDef>Valor Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Cetip Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartCetipAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.SwapCetip, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionSwapCetip.toggle(element) : null"
+                [checked]="SelectionSwapCetip.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.SwapCetip, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="ColumnsSwapCetip; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsSwapCetip"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.Margin)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.Margin"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.Margin)"
+  >
+    <mat-expansion-panel-header>
+      Margem - ({{ this.Margin ? this.Margin.length : 0 }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.Margin)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.Margin)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.Margin)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.Margin)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="Margin" class="mat-elevation-z8 col-md-12">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome da Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioDocument }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C.C Carteira/Fundo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioAccount }}
+          </td>
+        </ng-container>
+
+        <!-- specifics -->
+
+        <ng-container matColumnDef="portfolioClearingAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Clearing</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolioClearingAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ OperationTypesDescription[element.operationTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="marketTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Mercado</th>
+          <td mat-cell *matCellDef="let element">
+            {{ MarketTypesDescription[element.marketTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="securityName">
+          <th mat-header-cell *matHeaderCellDef>Nome Ativo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.securityName || element.securityType || element.asset }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="securityCode">
+          <th mat-header-cell *matHeaderCellDef>Código Ativo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.securityCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationValue">
+          <th mat-header-cell *matHeaderCellDef>Valor Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="unitPrice">
+          <th mat-header-cell *matHeaderCellDef>Preço Unitário</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.unitPrice | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Quantidade</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.amount | number }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dueDate">
+          <th mat-header-cell *matHeaderCellDef>Vencimento Ativo</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.dueDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Corretora Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartName }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartClearingAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta Corretora Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpartClearingAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="command">
+          <th mat-header-cell *matHeaderCellDef>Comando</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.command }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.Margin, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionMargin.toggle(element) : null"
+                [checked]="SelectionMargin.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.Margin, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="ColumnsMargin; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsMargin"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.CurrencyTerm)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.CurrencyTerm"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.CurrencyTerm)"
+  >
+    <mat-expansion-panel-header>
+      Termo de Moeda - ({{ this.CurrencyTerm ? this.CurrencyTerm.length : 0 }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+      <button
+        *ngIf="hasForwardRole(TicketTypeEnum.CurrencyTerm)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="forwardMany(TicketTypeEnum.CurrencyTerm)"
+      >
+        Encaminhar
+      </button>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.CurrencyTerm)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.CurrencyTerm)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="CurrencyTerm"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioName">
+          <th mat-header-cell *matHeaderCellDef>Nome Carteira</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolio.name }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioDocument">
+          <th mat-header-cell *matHeaderCellDef>CNPJ Carteira</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolio.document }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioAccount">
+          <th mat-header-cell *matHeaderCellDef>C/C Carteira</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolio.account }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="portfolioCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Conta CETIP Carteira</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.portfolio.clearingAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationTypeId">
+          <th mat-header-cell *matHeaderCellDef>Tipo Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ OperationTypesDescription[element.operationTypeId] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationValue">
+          <th mat-header-cell *matHeaderCellDef>Valor da Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationValue | currency: 'R$' : 'symbol': '1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartName">
+          <th mat-header-cell *matHeaderCellDef>Nome Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpart.name }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="counterpartCetipAccount">
+          <th mat-header-cell *matHeaderCellDef>Cta. CETIP Contraparte</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.counterpart.clearingAccount }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.CurrencyTerm, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionCurrencyTerm.toggle(element) : null"
+                [checked]="SelectionCurrencyTerm.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.CurrencyTerm, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="ColumnsCurrencyTerm; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsCurrencyTerm"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+
+  <!-- -->
+  <mat-expansion-panel
+    *ngIf="canDisplay(TicketTypeEnum.VariableIncome)"
+    [expanded]="this.ActiveTicketId == TicketTypeEnum.VariableIncome"
+    (afterExpand)="setActiveTicket(TicketTypeEnum.VariableIncome)"
+  >
+    <mat-expansion-panel-header>
+      Renda Variável - ({{ this.VariableIncome ? this.VariableIncome.length : 0 }})
+    </mat-expansion-panel-header>
+
+    <mat-action-row>
+      <button
+        *ngIf="hasApproveRole(TicketTypeEnum.VariableIncome)"
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="approveMany(TicketTypeEnum.VariableIncome)"
+      >
+        Aprovar
+      </button>
+    </mat-action-row>
+
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="VariableIncome"
+        class="mat-elevation-z8 col-md-12"
+      >
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>No. Boleta</th>
+          <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="operationDate">
+          <th mat-header-cell *matHeaderCellDef>Data Operação</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.operationDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="stockExchangeDate">
+          <th mat-header-cell *matHeaderCellDef>Data B3</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.stockExchangeDate | date: "dd/MM/yyyy" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="b3Account">
+          <th mat-header-cell *matHeaderCellDef>Conta B3</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.clientCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="brokerCode">
+          <th mat-header-cell *matHeaderCellDef>Código da Corretora</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.brokerCode }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="buyTotal">
+          <th mat-header-cell *matHeaderCellDef>Compra</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.buyTotal|currency:'R$':'symbol':'1.2-2' }}
+          </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="sellTotal">
+          <th mat-header-cell *matHeaderCellDef>Venda</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.sellTotal|currency:'R$':'symbol':'1.2-2' }}
+          </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="total">
+          <th mat-header-cell *matHeaderCellDef>Compra-Venda</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.buyTotal-element.sellTotal|currency:'R$':'symbol':'1.2-2' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statusId">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ WorkflowStatusDescription[element.statusId || -1] }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="elapsedTime">
+          <th mat-header-cell *matHeaderCellDef>Tempo Decorrido</th>
+          <td mat-cell *matCellDef="let element">
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours >= 1">
+              {{ element.elapsedTime.hours | number: "1.0-0" }}h
+            </span>
+            <span *ngIf="element.elapsedTime && element.elapsedTime.hours < 1">
+              {{ element.elapsedTime.minutes | number: "1.0-0" }}min
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions" sticky>
+          <th mat-header-cell *matHeaderCellDef>
+          </th>
+          <td mat-cell *matCellDef="let element" class="actions">
+            <div>
+              <mat-checkbox *ngIf="canCheck(TicketTypeEnum.VariableIncome, element)" (click)="$event.stopPropagation()"
+                (change)="$event ? SelectionVariableIncome.toggle(element) : null"
+                [checked]="SelectionVariableIncome.isSelected(element)">
+              </mat-checkbox>
+              <a [routerLink]="[MenuConstants.Tickets.VariableIncome, element.id]">
+                <i
+                  title="Visualizar"
+                  class="fa fa-lg fa-list-alt"
+                ></i>
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="ColumnsVariableIncome; sticky: true"
+        ></tr>
+        <tr mat-row *matRowDef="let row; columns: ColumnsVariableIncome"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

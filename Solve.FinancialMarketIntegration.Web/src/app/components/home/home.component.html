@@ -1,0 +1,14 @@
+<app-nav-menu></app-nav-menu>
+
+<div>
+  <div class="container-fluid" id="main">
+    <div class="row" id="content">
+      <div class="col-md-12">
+        <app-limit-hours *ngIf="isRoot"></app-limit-hours>
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+    <app-footer></app-footer>
+  </div>
+</div>
+

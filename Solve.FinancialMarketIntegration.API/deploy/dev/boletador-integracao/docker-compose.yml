@@ -1,0 +1,43 @@
+version: '3'
+services:
+  integracao_api:
+    build:
+      context: .
+      dockerfile: Dockerfile-api
+      args:
+        ENV: develop
+    ports:
+      - '5001:80'
+    volumes:
+      - ./conf/appsettings.json:/app/appsettings.Development.json
+      - ./conf/appsettings.json:/app/appsettings.json
+      - ./conf/run-api.sh:/app/entrypoint.sh
+      - ./data/uploads:/app/uploads
+    working_dir: /app
+    entrypoint:
+      - sh
+      - entrypoint.sh
+  integracao_web:
+    build:
+      context: .
+      dockerfile: Dockerfile-web
+      args:
+        ENV: develop
+        ENV_NG: dev
+    ports:
+      - '81:80'
+    volumes:
+      - ./conf/nginx-conf:/etc/nginx/conf.d
+  integracao_db:
+    build:
+      context: .
+      dockerfile: Dockerfile-db
+      args:
+        OLD_ENV: master
+        NEW_ENV: develop
+    working_dir: /app
+    volumes:
+      - ./conf/recreate-db.sh:/app/entrypoint.sh
+    entrypoint:
+      - sh
+      - entrypoint.sh

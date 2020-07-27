@@ -1,0 +1,12 @@
+version: '2.1'
+services:
+  web:
+    build:
+      context: .
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+      - ./cert:/etc/nginx/cert
+      - ./files:/usr/share/nginx/html/files
